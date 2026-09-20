@@ -1,0 +1,37 @@
+Açık Video İndirici v7.4.1 doğrulama özeti
+
+SÜRÜM İŞARETLERİ
+[OK] python_app/app.py APP_VERSION = "7.4.1"
+[OK] extension/manifest.json "version": "7.4.1"
+[OK] README.md paket adı Acik-Video-Indirici-Windows11-v7.4.1.zip
+[OK] installer/AcikVideoIndirici.iss MyAppVersion "7.4.1" / Acik-Video-Indirici-Kurulum-7.4.1.exe
+
+YENİ ÖZELLİK: KURULUM PAKETİ (PyInstaller + Inno Setup)
+[OK] installer/app.spec: onefile, penceresiz, ikonlu; customtkinter/tkinterdnd2/curl_cffi/certifi veri ve dll toplama; yt-dlp + yt_dlp_ejs + websockets + brotli hiddenimport
+[OK] installer/AcikVideoIndirici.iss: TR+EN dilleri, modern sihirbaz, x64, LZMA2; {app}\extension kurulumu; Başlat menüsünde uygulama + eklenti klasörü kısayolu; kurulum sonrası çalıştırma
+[OK] installer/KURULUM-OLUSTUR.bat: venv -> pip -> PyInstaller -> ISCC (yoksa winget ile Inno kurulumu önerisi) -> Output/extension kopyası -> SHA-256 özeti; CRLF
+[OK] installer/assets: app.ico (16-256 px), wizard-left.bmp, wizard-small.bmp üretildi
+[OK] FFmpeg/Deno pakete EKLENMEDI; uygulama içi FFmpeg Güncelle / YouTube-Deno WinGet düğmeleriyle kurulur (setup küçük kalır)
+[OK] extension/ dağıtım klasöründe setup'ın yanında taşınır (bat adımı + README §4.8)
+
+DONDURULMUŞ SÜRÜM UYUMLULUĞU
+[OK] IS_FROZEN sabiti eklendi; yt-dlp Güncelle dondurulmuş sürümde pip çalıştırmaz, yeni setup önerir
+[OK] find_ffmpeg/find_ffprobe dondurulmuş EXE'de kurulum klasörünü (exe_dir) ayrıca tarar
+[OK] Kaynak (venv) akışı davranışı değişmedi; köprü 17852, cookie bellek içi, DRM yok
+
+KORUNAN REGRESYONLAR (v7.4)
+[OK] Python app.py sözdizimi ve import zinciri (py_compile)
+[OK] Chrome Manifest V3 JSON ve tüm JavaScript dosyaları (node --check)
+[OK] manifestText zinciri, 1M/2MiB sınırları, local M3U8, enable_file_urls
+[OK] 20 iş havuzu ve concurrency_schema=2 migrasyonu; cookieHeader geçmişten temizlenir
+[OK] FFmpeg WinGet güncelleyici dalları; WinError 32 kurtarma; FFprobe altyazı doğrulaması
+[OK] app.spec Python sözdizimi (compile) kontrolü
+
+PAKET/KAPSAM
+[OK] Yeni dağınık MD dosyası yok; tüm belge tek README.md içinde güncellendi
+[OK] .gitignore eklendi: installer/build, installer/dist, installer/Output, .venv, __pycache__, loglar git'e girmez
+[OK] TEST-RAPORU-v7.4.1.txt bu sürümün tek ek metin özeti (mevcut txt geleneği)
+
+SINIR
+[BEKLİYOR] setup.exe ve tek EXE yalnız Windows'ta derlenebilir: installer/KURULUM-OLUSTUR.bat Windows 11'de çalıştırılmalı; PyInstaller çıktısı, ISCC derlemesi, SmartScreen davranışı, kurulum/extension yükleme ve uygulama içi FFmpeg/Deno kurulumu gerçek ortamda doğrulanmalıdır.
+[BEKLİYOR] v7.4 Imagestoo HLS kullanıcı testi (uzantısız master.txt akışları) hâlâ açıktır.

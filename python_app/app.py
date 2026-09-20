@@ -33,7 +33,9 @@ from yt_dlp.utils import DownloadError
 
 
 APP_NAME = "Açık Video İndirici"
-APP_VERSION = "7.4.0"
+APP_VERSION = "7.4.1"
+# PyInstaller ile dondurulmuş EXE (setup kurulumu) içinde True olur.
+IS_FROZEN = bool(getattr(sys, "frozen", False))
 BRIDGE_HOST = "127.0.0.1"
 BRIDGE_PORT = 17852
 MAX_BRIDGE_BODY = 2 * 1024 * 1024
@@ -121,6 +123,11 @@ def job_history_file() -> Path:
 def find_ffmpeg() -> str | None:
     candidates: list[str | Path | None] = []
     app_dir = Path(__file__).resolve().parent
+    # Dondurulmuş EXE'de __file__ geçici açılım klasörünü gösterir; kurulum
+    # klasöründeki (EXE yanı) ffmpeg.exe kopyalarını da aday olarak tara.
+    exe_dir: Path | None = (
+        Path(sys.executable).resolve().parent if IS_FROZEN else None
+    )
 
     # A newly installed WinGet package may not be visible in the PATH of the
     # already-running GUI. Inspect its standard locations as well, so the
@@ -161,6 +168,8 @@ def find_ffmpeg() -> str | None:
             app_dir / "bin" / "ffmpeg",
         ]
     )
+    if exe_dir is not None:
+        candidates.extend([exe_dir / "ffmpeg.exe", exe_dir / "bin" / "ffmpeg.exe"])
     seen: set[str] = set()
     for candidate in candidates:
         if not candidate:
@@ -221,6 +230,9 @@ def find_ffprobe(ffmpeg_executable: str | None = None) -> str | None:
             app_dir / "bin" / "ffprobe",
         ]
     )
+    if IS_FROZEN:
+        exe_dir = Path(sys.executable).resolve().parent
+        candidates.extend([exe_dir / "ffprobe.exe", exe_dir / "bin" / "ffprobe.exe"])
     for candidate in candidates:
         if not candidate:
             continue
@@ -5177,6 +5189,14 @@ class VideoDownloaderApp(ctk.CTk):
     def _update_ytdlp(self) -> None:
         if self.busy_kind:
             messagebox.showinfo("İşlem sürüyor", "Önce mevcut işlemin bitmesini bekleyin.")
+            return
+        if IS_FROZEN:
+            messagebox.showinfo(
+                "Setup sürümü",
+                "Bu kurulumda yt-dlp, EXE ile birlikte dondurulmuştur ve pip ile ayrı "
+                "güncellenemez. Güncel yt-dlp için yeni kurulum paketini (setup.exe) "
+                "yükleyin. Kaynak (Python) sürümünde bu düğme etkin sanal ortamı günceller.",
+            )
             return
         if not messagebox.askyesno(
             "yt-dlp güncelle",

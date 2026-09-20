@@ -1,4 +1,4 @@
-# Açık Video İndirici v7.4.0
+# Açık Video İndirici v7.4.1
 
 > **Tek proje belgesi:** Bu dosya; proje özeti, kurulum, kullanım, mimari, geçmiş düzeltmeler, sorun giderme, test/devir notları ve projeyi yeni bir Arena.ai Agent Mode sohbetinde sürdürme adımlarını bir araya getirir.
 
@@ -9,13 +9,14 @@ Açık Video İndirici, Windows 11 için yerel çalışan iki parçalı bir medy
 1. **Chrome/Edge Manifest V3 eklentisi**, sayfadaki gerçekten oynayan `<video>` öğesini bulur, sağ üstüne **İndir** düğmesi ekler ve ilgili medya/sayfa bilgisini yerel uygulamaya yollar.
 2. **Python masaüstü uygulaması**, `customtkinter`, `yt-dlp`, FFmpeg ve FFprobe ile analiz, kalite seçimi, kuyruk, duraklatma/devam, ayrı ses-altyazı indirme ve MP4/MKV birleştirme işlerini yönetir.
 
-Güncel kaynak ve paket sürümü **7.4.0**'dır. v7.4 ile Format Seçimi sayfasındaki bakım araçlarına **FFmpeg Güncelle** düğmesi eklenmiştir. Düğme Windows Package Manager üzerinden `Gyan.FFmpeg` paketini yükseltir; FFmpeg yoksa kurar, FFprobe'yu birlikte günceller ve yeni sürümü uygulamada yeniden algılar.
+Güncel kaynak ve paket sürümü **7.4.1**'dir. v7.4.1 ile **PyInstaller + Inno Setup** tabanlı Windows kurulum paketi (setup.exe) desteği eklenmiştir: `app.py` tek EXE'ye dondurulur, Inno Setup onu profesyonel bir kurulum programı olarak paketler; kullanıcıda Python gerekmez ve dağıtım klasöründe `extension/` klasörü setup'ın yanında taşınır. FFmpeg ve Deno bilinçli olarak pakete konmaz; uygulama içi **FFmpeg Güncelle** ve **YouTube / Deno** düğmeleriyle WinGet üzerinden kurulur, böylece setup küçük kalır. v7.4 ile Format Seçimi sayfasındaki bakım araçlarına eklenen **FFmpeg Güncelle** düğmesi Windows Package Manager üzerinden `Gyan.FFmpeg` paketini yükseltir; FFmpeg yoksa kurar, FFprobe'yu birlikte günceller ve yeni sürümü uygulamada yeniden algılar.
 
 Sürüm işaretleri şuralarda birlikte tutulur:
 
-- `python_app/app.py` → `APP_VERSION = "7.4.0"`
-- `extension/manifest.json` → `"version": "7.4.0"`
-- Paket adı → `Acik-Video-Indirici-Windows11-v7.4.0.zip`
+- `python_app/app.py` → `APP_VERSION = "7.4.1"`
+- `extension/manifest.json` → `"version": "7.4.1"`
+- Paket adı → `Acik-Video-Indirici-Windows11-v7.4.1.zip`
+- `installer/AcikVideoIndirici.iss` → `MyAppVersion "7.4.1"` ve `Acik-Video-Indirici-Kurulum-7.4.1.exe` çıktı adı (dördü birlikte artırılır)
 
 Bu proje Aloha Browser ile bağlantılı değildir; Aloha'nın uygulama dosyalarını, sayacını veya limitlerini değiştirmez. Yalnız benzer bir kullanıcı akışından esinlenmiş bağımsız bir araçtır.
 
@@ -32,9 +33,9 @@ Bu proje Aloha Browser ile bağlantılı değildir; Aloha'nın uygulama dosyalar
 ```text
 aloha-video-downloader/
 ├─ README.md                                  # Tek proje/devir belgesi
-├─ TEST-RAPORU-v7.4.txt                       # Son doğrulama özeti
-├─ Acik-Video-Indirici-Windows11-v7.4.0.zip  # Dağıtım ve yeni sohbete aktarım paketi
-├─ KUR_VE_BASLAT.bat                          # Tek tık kurulum/başlatma
+├─ TEST-RAPORU-v7.4.1.txt                     # Son doğrulama özeti
+├─ Acik-Video-Indirici-Windows11-v7.4.1.zip   # Dağıtım ve yeni sohbete aktarım paketi
+├─ KUR_VE_BASLAT.bat                          # Tek tık kurulum/başlatma (kaynak akışı)
 ├─ YOUTUBE-DESTEGI-KUR.bat                    # Deno kurulumu
 ├─ python_app/
 │  ├─ app.py                                  # GUI, köprü, analiz, kuyruk, indirme, mux
@@ -42,15 +43,23 @@ aloha-video-downloader/
 │  ├─ install.bat
 │  ├─ run.bat
 │  └─ TANI.bat
-└─ extension/
-   ├─ manifest.json
-   ├─ background.js                           # webRequest, oturum kayıtları ve çerez bağlamı
-   ├─ page-hook.js                            # MAIN-world Fetch/XHR gözlemi ve manifest gövdesi
-   ├─ content.js                              # Sayfa/eklenti dünyaları arasında güvenli aktarım
-   ├─ overlay.js                              # Video eşleştirme ve video üstü İndir düğmesi
-   ├─ popup.html
-   ├─ popup.js
-   └─ popup.css
+├─ extension/
+│  ├─ manifest.json
+│  ├─ background.js                           # webRequest, oturum kayıtları ve çerez bağlamı
+│  ├─ page-hook.js                            # MAIN-world Fetch/XHR gözlemi ve manifest gövdesi
+│  ├─ content.js                              # Sayfa/eklenti dünyaları arasında güvenli aktarım
+│  ├─ overlay.js                              # Video eşleştirme ve video üstü İndir düğmesi
+│  ├─ popup.html
+│  ├─ popup.js
+│  └─ popup.css
+└─ installer/
+   ├─ app.spec                                # PyInstaller: app.py -> tek EXE (onefile)
+   ├─ AcikVideoIndirici.iss                   # Inno Setup kurulum betiği (TR/EN)
+   ├─ KURULUM-OLUSTUR.bat                     # Tek tıkla setup derleme (yalnız Windows)
+   ├─ assets/                                 # app.ico, wizard-left.bmp, wizard-small.bmp
+   ├─ tools/make_assets.py                    # Görselleri yeniden üretme betiği (Pillow)
+   ├─ .venv/ , build/ , dist/                 # Derleme ara çıktıları (git'e/pakete girmez)
+   └─ Output/                                 # setup.exe + extension/ dağıtım klasörü (git'e girmez)
 ```
 
 Sanal ortam, bağımlılık önbellekleri ve çalışma zamanında oluşan loglar dağıtım paketine eklenmemelidir.
@@ -78,7 +87,7 @@ yt-dlp[default,curl-cffi]
 
 ### 4.1 En kolay yöntem
 
-1. `Acik-Video-Indirici-Windows11-v7.4.0.zip` dosyasına sağ tıklayıp **Tümünü Ayıkla** seçeneğini kullanın.
+1. `Acik-Video-Indirici-Windows11-v7.4.1.zip` dosyasına sağ tıklayıp **Tümünü Ayıkla** seçeneğini kullanın.
 2. Betikleri ZIP önizlemesinin içinden çalıştırmayın.
 3. Ayıklanan ana klasörde `KUR_VE_BASLAT.bat` dosyasına çift tıklayın.
 4. Betik uygun Python'u bulur, `python_app/.venv` oluşturur, bağımlılıkları kurar ve uygulamayı başlatır.
@@ -152,6 +161,19 @@ Uygulamada şunlar görünmelidir:
 - YouTube için `Deno ✓`
 - TLS/curl-cffi için `TLS ✓`
 - `Tarayıcı köprüsü açık: 127.0.0.1:17852`
+
+### 4.8 Kurulum paketi (setup.exe) ile kurulum
+
+v7.4.1'den itibaren kaynak akışına alternatif olarak tek dosyalık kurulum paketi vardır:
+
+1. `installer/Output/` klasöründeki `Acik-Video-Indirici-Kurulum-7.4.1.exe` dosyasını çalıştırın. Paket imzasız olduğu için Windows SmartScreen uyarısı gösterebilir; **Daha fazla bilgi → Yine de çalıştır** ile devam edin. (Uyarının nedeni kod imzası olmamasıdır; paket yalnız bu repo kaynaklarından derlenir.)
+2. Kurulum, uygulamayı ve `extension` klasörünü birlikte `{kurulum}\` altına koyar; Başlat menüsüne uygulama ve **Tarayıcı Eklentisi Klasörü** kısayolları eklenir.
+3. Chrome/Edge'de §4.6'daki gibi **Paketlenmemiş öğe yükle** ile kurulum klasöründeki `extension` klasörünü seçin.
+4. Uygulamada Python aranmaz; köprü yine `127.0.0.1:17852` üzerinde açılır.
+5. FFmpeg ve Deno kurulumda gelmez: ilk açılışta Format Seçimi sayfasındaki **FFmpeg Güncelle** ve **YouTube / Deno** düğmelerini kullanın (WinGet ile kurulur). TLS/curl-cffi EXE ile birlikte gelir.
+6. Ayarlar ve geçmiş `%APPDATA%\AcikVideoIndirici` altında kalır; program kaldırma bunları silmez.
+
+Dağıtım klasörü (`installer/Output/`) hem `setup.exe` hem `extension/` klasörünü içerir; `extension`'ı ayrıca elle kopyalamaya gerek yoktur.
 
 ## 5. Temel kullanım
 
@@ -529,7 +551,7 @@ Downloading m3u8 information
 
 ### Henüz kullanıcı ortamında doğrulanması gereken aktif konu
 
-v7.4 paketi v7.3 manifest fallback'ini korur ve kaynak/statik testleri geçmiştir; ancak aşağıdaki gerçek Imagestoo akışları için yeni paketin Windows kullanıcı testi henüz alınmamıştır:
+v7.4.1 paketi v7.3 manifest fallback'ini korur ve kaynak/statik testleri geçmiştir; ancak aşağıdaki gerçek Imagestoo akışları için yeni paketin Windows kullanıcı testi henüz alınmamıştır:
 
 ```text
 https://imagestoo.com/cdn/hls/a42e71edb979cddae99730dd476078e1/master.txt
@@ -547,7 +569,7 @@ Satır yoksa olası nedenler:
 - Gövde 1 MB sınırını aşmıştır.
 - Bridge payload'ı 2 MiB sınırına takılmıştır.
 
-İlk işlem: eski eklentiyi kaldırın, v7.4 `extension` klasörünü yeniden yükleyin, video sekmesini tamamen kapatıp tekrar açın. Sorun sürerse geçici tanı logları şu noktalara eklenmelidir:
+İlk işlem: eski eklentiyi kaldırın, v7.4.1 `extension` klasörünü yeniden yükleyin, video sekmesini tamamen kapatıp tekrar açın. Sorun sürerse geçici tanı logları şu noktalara eklenmelidir:
 
 - page hook'ta manifest karakter/byte sayısı ve `manifestKind`
 - content aktarımında URL + body uzunluğu
@@ -685,6 +707,7 @@ Altyazıyı oynatıcıdan etkinleştirin. `<track>`, VTT/SRT/ASS/TTML, uzantıs�
 | v7.2 | Daha büyük format tablosu, Python refetch ile extensionless/text HLS, memory CookieJar |
 | v7.3 | Tarayıcıdan `manifestText` aktarımı; CDN'ye ikinci istek olmadan local M3U8 hazırlama |
 | v7.4 | Format Seçimi sayfasında WinGet tabanlı FFmpeg/FFprobe güncelleme-kurma düğmesi, aktif iş güvenlik kontrolü, WinGet yolu yeniden keşfi ve sürüm göstergesi |
+| v7.4.1 | PyInstaller + Inno Setup ile tek EXE ve setup.exe kurulum paketi; dağıtım klasöründe extension/; FFmpeg/Deno pakete konmaz (uygulama içi WinGet düğmeleri); dondurulmuş sürümde yt-dlp düğmesi bilgilendirme modu; EXE yanında FFmpeg/FFprobe keşfi; TR/EN kurulum sihirbazı ve ikon/wizard görselleri |
 
 ## 18. Geliştirme sırasında korunacak mimari kurallar
 
@@ -711,6 +734,8 @@ Yeni bir değişiklik yapılırken aşağıdakiler regresyona uğratılmamalıd�
 19. Kullanıcıya “her site kesin desteklenir” sözü verilmemeli.
 20. Arayüz değişikliği ana büyük indirme listesini küçültmemeli; harici format ve takip pencereleri küçültülebilir kalmalı.
 21. FFmpeg güncelleyici yalnız kullanıcı onayıyla ve aktif medya işi yokken çalışmalı; `Gyan.FFmpeg` WinGet yükseltme/kurma fallback'i, hata mesajları ve yeniden yol/sürüm algılama korunmalı.
+22. Setup paketi FFmpeg, Deno veya Python içermemeli; bunlar uygulama içi bakım düğmeleriyle (WinGet) kurulmalı. `extension/` klasörü hem `{app}\extension` altına kurulmalı hem dağıtım klasöründe setup'ın yanında taşınmalı. `APP_VERSION`, extension manifest ve `.iss` `MyAppVersion` birlikte artırılmalı.
+23. Dondurulmuş (setup) sürümde `yt-dlp Güncelle` pip çalıştırmamalı, kullanıcıya yeni kurulum paketini önermeli; `IS_FROZEN` koruması ve dondurulmuş EXE'de kurulum klasörünü tarayan FFmpeg/FFprobe keşfi korunmalı.
 
 ## 19. Geliştirici doğrulama ve paketleme
 
@@ -771,17 +796,19 @@ Linux sandbox'ta ekran/Xvfb yoksa tam Windows `customtkinter` görsel smoke test
 Dağıtım ZIP'inde yalnız şunlar bulunmalıdır:
 
 - `README.md`
-- `TEST-RAPORU-v7.4.txt`
+- `TEST-RAPORU-v7.4.1.txt`
 - `KUR_VE_BASLAT.bat`
 - `YOUTUBE-DESTEGI-KUR.bat`
 - `python_app/` içindeki kaynak/bat/requirements dosyaları
 - `extension/` içindeki kaynak dosyaları
+- `installer/` içindeki kaynak dosyalar: `app.spec`, `AcikVideoIndirici.iss`, `KURULUM-OLUSTUR.bat`, `assets/`, `tools/make_assets.py`
 
 Şunlar dahil edilmemelidir:
 
-- `.venv`
+- `.venv`, `installer/.venv`
 - `__pycache__`
 - `node_modules`
+- `installer/build`, `installer/dist`, `installer/Output`
 - kurulum/uygulama logları
 - kullanıcı ayarları/geçmişi
 - cookie dosyaları
@@ -791,9 +818,31 @@ Dağıtım ZIP'inde yalnız şunlar bulunmalıdır:
 Paket sonrası:
 
 ```bash
-unzip -t Acik-Video-Indirici-Windows11-v7.4.0.zip
-sha256sum Acik-Video-Indirici-Windows11-v7.4.0.zip
+unzip -t Acik-Video-Indirici-Windows11-v7.4.1.zip
+sha256sum Acik-Video-Indirici-Windows11-v7.4.1.zip
 ```
+
+### 19.6 Setup derleme (PyInstaller + Inno Setup)
+
+Kurulum paketi yalnız **Windows** üzerinde derlenir (PyInstaller hedef işletim sistemi EXE'si üretir; Linux/Arena ortamı kaynak ve statik doğrulama içindir).
+
+1. `installer/KURULUM-OLUSTUR.bat` çalıştırılır. Betik sırayla:
+   - Python 3.10+ bulur ve `installer/.venv` oluşturur; `requirements.txt` + `pyinstaller` kurar.
+   - `app.spec` ile `app.py`'yi **tek EXE** (`installer/dist/AcikVideoIndirici.exe`, penceresiz, ikonlu) olarak dondurur.
+   - Inno Setup 6'yı arar; yoksa onayla `winget install --id JRSoftware.InnoSetup -e` kurar.
+   - `AcikVideoIndirici.iss` derleyerek `installer/Output/Acik-Video-Indirici-Kurulum-7.4.1.exe` üretir.
+   - `extension/` klasörünü `installer/Output/extension` altına kopyalar ve SHA-256 yazdırır.
+2. `app.spec` şunları EXE'ye gömer: `customtkinter` temaları, `tkinterdnd2` (tkdnd Tcl paketi + dll), `curl_cffi` yerel kütüphaneleri (TLS impersonation), `certifi` CA paketi, `yt-dlp[default,curl-cffi]` + `yt_dlp_ejs` modülleri. UPX kapalıdır (tk/curl dll'lerini bozabilir).
+3. **Bilinçli kapsam:** FFmpeg, Deno ve Python pakete konmaz; boyut küçük kalır. Kurulumdan sonra uygulama içi bakım düğmeleri bunları WinGet ile kurar. Dondurulmuş sürümde **yt-dlp Güncelle** pip çalıştırmaz, yeni setup paketini önerir (`IS_FROZEN` koruması).
+4. **Onefile notu:** İlk açılışta geçici klasöre açılım nedeniyle birkaç saniyelik gecikme normaldir; SmartScreen/antivirüs imzasız EXE'de uyarı verebilir. Kod imzası istenirse `codesign_identity` spec'e eklenebilir.
+5. Sürüm artırırken `APP_VERSION`, `manifest.json`, `.iss` içindeki `MyAppVersion` ve bu README'deki paket/setup adları birlikte güncellenir.
+
+Derleme sonrası kontrol listesi:
+
+- `installer/Output/` içinde hem setup.exe hem `extension/` vardır.
+- Kurulum sonrası `{app}\AcikVideoIndirici.exe` açılır, köprü 17852'yi dinler.
+- `{app}\extension` Chrome/Edge'de yüklenir; manifest sürümü uygulama sürümüyle aynıdır.
+- `ffmpeg -version` gerekmeden önce uygulama **FFmpeg Güncelle** ile kurabilir.
 
 ## 20. Projeyi yeni Arena.ai Agent Mode sohbetine aktarma
 
@@ -801,7 +850,7 @@ Yeni sohbet önceki sohbetin belleğine veya mevcut workspace yoluna otomatik ol
 
 ### Adım adım
 
-1. Bu sohbetten `Acik-Video-Indirici-Windows11-v7.4.0.zip` dosyasını bilgisayarınıza indirin.
+1. Bu sohbetten `Acik-Video-Indirici-Windows11-v7.4.1.zip` dosyasını bilgisayarınıza indirin.
 2. Yeni bir Arena.ai sohbeti açın ve **Agent Mode** seçin.
 3. Mesaj ekindeki dosya yükleme alanından ZIP'i yeni sohbete ekleyin. Yalnız `/home/user/...` yolu yazmak yeterli değildir; yeni sohbet aynı workspace'i görmeyebilir.
 4. Aşağıdaki hazır devir istemini yapıştırın.
@@ -819,7 +868,7 @@ Ekte Açık Video İndirici Windows 11 projesinin güncel kaynak paketi var.
 1. ZIP'i workspace içinde /home/user/aloha-video-downloader klasörüne çıkar.
 2. Önce README.md dosyasının tamamını oku; bu dosya proje mimarisi, değişmez kurallar, güncel sorun, test ve paketleme bilgisinin tek kaynağıdır.
 3. Sonra python_app/app.py, extension/manifest.json ve ilgili extension JavaScript dosyalarını doğrudan inceleyerek README ile kaynak kodu doğrula.
-4. Güncel başlangıç sürümü v7.4.0'dır. Mevcut özellikleri ve README'deki “Geliştirme sırasında korunacak mimari kurallar” bölümünü bozma.
+4. Güncel başlangıç sürümü v7.4.1'dir. Mevcut özellikleri ve README'deki “Geliştirme sırasında korunacak mimari kurallar” bölümünü bozma.
 5. DRM/Widevine/CENC atlatma yapma ve her site için garanti verme. Yalnız açık/şifresiz veya kullanıcının indirmeye yetkili olduğu medya kapsamında çalış.
 6. Cookie/token değerlerini loga, ayarlara, geçmişe veya pakete yazma.
 7. Değişiklikten sonra Python/JSON/JavaScript kontrollerini, ilgili regresyon testlerini ve ZIP bütünlük testini çalıştır.
