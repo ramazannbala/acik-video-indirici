@@ -7,6 +7,10 @@
 #define MyAppPublisher "Acik Video Indirici"
 #define MyAppURL "https://github.com/ramazannbala/acik-video-indirici"
 #define MyAppExeName "AcikVideoIndirici.exe"
+; PyInstaller çıktısının kökü; KURULUM-OLUSTUR.bat /DDistDir ile kısa yolu geçerir.
+#ifndef DistDir
+  #define DistDir "dist"
+#endif
 
 [Setup]
 AppId={{9F2E4C7A-6B1D-4A3E-8C5F-2D7A0B9E1436}
@@ -48,7 +52,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 ; PyInstaller onefile çıktısı (tek EXE, Python gerektirmez)
-Source: "dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#DistDir}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 ; Tarayıcı eklentisi, kurulum klasöründe klasör olarak taşınır
 Source: "..\extension\*"; DestDir: "{app}\extension"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\README.md"; DestDir: "{app}"; Flags: ignoreversion

@@ -631,6 +631,16 @@ py -3 -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
+### pip `OSError [Errno 2]` / Windows uzun yol (MAX_PATH) hatası
+
+`pip install` sırasında `No such file or directory: '...\_pyinstaller_hooks_contrib\stdhooks\hook-sklearn.externals.array_api_compat.cupy.py'` ve "Long Path support" ipucu görülüyorsa repo çok derin bir yoldadır ve 260 karakter sınırı aşılmıştır (özellikle çift kat ayıklanmış `Downloads\Compressed\...` klasörlerinde).
+
+Çözüm sırası:
+
+1. v7.4.1 güncel `KURULUM-OLUSTUR.bat` zaten derleme kökünü repo dışına taşır: venv/work/dist `%LOCALAPPDATA%\AVI-Build` altında kurulur (`AVI_BUILD_DIR` değişkeniyle değiştirilebilir). Betiğin güncel sürümünü kullanın.
+2. Repo'yu kısa bir yola taşıyın; örn. `C:\AVI`. ZIP'i çift kat ayıklamaktan kaçının.
+3. İsteğe bağlı sistem ayarı: Yönetici terminalde `reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v LongPathsEnabled /t REG_DWORD /d 1 /f` ile uzun yol desteği açılabilir; yeni bir terminal açın. Bu ayar Python/pip için etkilidir ancak kısa derleme kökü her durumda en garantili çözümdür.
+
 ### FFmpeg bulunamadı
 
 ```powershell
@@ -873,6 +883,7 @@ Kurulum paketi yalnız **Windows** üzerinde derlenir (PyInstaller hedef işleti
    - `AcikVideoIndirici.iss` derleyerek `installer/Output/Acik-Video-Indirici-Kurulum-7.4.1.exe` üretir.
    - `extension/` klasörünü `installer/Output/extension` altına kopyalar ve SHA-256 yazdırır.
 2. `app.spec` şunları EXE'ye gömer: `customtkinter` temaları, `tkinterdnd2` (tkdnd Tcl paketi + dll), `curl_cffi` yerel kütüphaneleri (TLS impersonation), `certifi` CA paketi, `yt-dlp[default,curl-cffi]` + `yt_dlp_ejs` modülleri. UPX kapalıdır (tk/curl dll'lerini bozabilir).
+2b. **MAX_PATH koruması:** venv, work ve dist repo dışında kısa bir kökte tutulur (`%LOCALAPPDATA%\AVI-Build`, `AVI_BUILD_DIR` ile değiştirilebilir); ISCC'ye `/DDistDir` ile aktarılır, `.iss` yoksa `dist` varsayılanını kullanır. Böylece derin klasörlerdeki 260 karakter sınırı pip/PyInstaller'ı kırmaz.
 3. **Bilinçli kapsam:** FFmpeg, Deno ve Python pakete konmaz; boyut küçük kalır. Kurulumdan sonra uygulama içi bakım düğmeleri bunları WinGet ile kurar. Dondurulmuş sürümde **yt-dlp Güncelle** pip çalıştırmaz, yeni setup paketini önerir (`IS_FROZEN` koruması).
 4. **Onefile notu:** İlk açılışta geçici klasöre açılım nedeniyle birkaç saniyelik gecikme normaldir; SmartScreen/antivirüs imzasız EXE'de uyarı verebilir. Kod imzası istenirse `codesign_identity` spec'e eklenebilir.
 5. Sürüm artırırken `APP_VERSION`, `manifest.json`, `.iss` içindeki `MyAppVersion` ve bu README'deki paket/setup adları birlikte güncellenir.

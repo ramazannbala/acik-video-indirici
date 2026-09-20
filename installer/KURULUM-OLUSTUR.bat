@@ -23,44 +23,55 @@ if not defined PYCMD (
 )
 echo [1/5] Python: %PYCMD%
 
-REM ---------- 2) Sanal ortam + bağımlılıklar + PyInstaller ----------
-if not exist ".venv\Scripts\python.exe" (
-  echo [2/5] Sanal ortam olusturuluyor: installer\.venv
-  %PYCMD% -m venv .venv
+REM ---------- 2) Kısa derleme kökü + sanal ortam (MAX_PATH koruması) ----------
+REM Windows 260 karakter yol sınırını aşmamak için venv ve derleme ara çıktıları
+REM repo dışında kısa bir kökte tutulur; AVI_BUILD_DIR ile değiştirilebilir.
+set "BUILD=%AVI_BUILD_DIR%"
+if not defined BUILD set "BUILD=%LOCALAPPDATA%\AVI-Build"
+mkdir "%BUILD%" 2>nul
+if not exist "%BUILD%" (
+  set "BUILD=%~dp0build-root"
+  mkdir "%BUILD%" 2>nul
+)
+echo [2/5] Derleme kökü (kisa yol, MAX_PATH korumasi): %BUILD%
+
+if not exist "%BUILD%\venv\Scripts\python.exe" (
+  echo       Sanal ortam olusturuluyor...
+  %PYCMD% -m venv "%BUILD%\venv"
   if errorlevel 1 goto :fail
 ) else (
-  echo [2/5] Sanal ortam mevcut; pip dogrulaniyor...
+  echo       Sanal ortam mevcut; pip dogrulaniyor...
 )
-".venv\Scripts\python.exe" -m pip --version >nul 2>&1
+"%BUILD%\venv\Scripts\python.exe" -m pip --version >nul 2>&1
 if not errorlevel 1 goto :pip_ready
 echo       pip eksik; ensurepip ile onariliyor...
-".venv\Scripts\python.exe" -m ensurepip --upgrade --default-pip >nul 2>&1
-".venv\Scripts\python.exe" -m pip --version >nul 2>&1
+"%BUILD%\venv\Scripts\python.exe" -m ensurepip --upgrade --default-pip >nul 2>&1
+"%BUILD%\venv\Scripts\python.exe" -m pip --version >nul 2>&1
 if not errorlevel 1 goto :pip_ready
-echo       Onarim basarisiz; .venv bir kez temiz yeniden olusturuluyor...
-rmdir /s /q ".venv" >nul 2>&1
-if exist ".venv" (
-  echo [HATA] Bozuk .venv klasoru silinemedi. Kullanan terminalleri kapatip elle silin.
+echo       Onarim basarisiz; venv bir kez temiz yeniden olusturuluyor...
+rmdir /s /q "%BUILD%\venv" >nul 2>&1
+if exist "%BUILD%\venv" (
+  echo [HATA] Bozuk venv klasoru silinemedi. Kullanan terminalleri kapatip elle silin.
   goto :fail
 )
-%PYCMD% -m venv .venv
+%PYCMD% -m venv "%BUILD%\venv"
 if errorlevel 1 goto :fail
-".venv\Scripts\python.exe" -m pip --version >nul 2>&1
+"%BUILD%\venv\Scripts\python.exe" -m pip --version >nul 2>&1
 if not errorlevel 1 goto :pip_ready
 echo [HATA] Sanal ortamda pip olusturulamadi. Python yukleyicisinde Modify/Repair
 echo        secip pip ve venv bilesenlerini onarin, sonra yeniden deneyin.
 goto :fail
 :pip_ready
-".venv\Scripts\python.exe" -m pip install --upgrade pip >nul
-".venv\Scripts\python.exe" -m pip install -r "..\python_app\requirements.txt" pyinstaller
+"%BUILD%\venv\Scripts\python.exe" -m pip install --upgrade pip >nul
+"%BUILD%\venv\Scripts\python.exe" -m pip install -r "..\python_app\requirements.txt" pyinstaller
 if errorlevel 1 goto :fail
 
 REM ---------- 3) PyInstaller: app.py -> tek EXE ----------
 echo [3/5] PyInstaller: app.py tek EXE olarak donduruluyor (birkaç dakika sürebilir)...
-".venv\Scripts\pyinstaller.exe" --noconfirm --clean --distpath "%~dp0dist" --workpath "%~dp0build" "%~dp0app.spec"
+"%BUILD%\venv\Scripts\pyinstaller.exe" --noconfirm --clean --distpath "%BUILD%\dist" --workpath "%BUILD%\work" "%~dp0app.spec"
 if errorlevel 1 goto :fail
-if not exist "dist\AcikVideoIndirici.exe" (
-  echo [HATA] dist\AcikVideoIndirici.exe üretilmedi.
+if not exist "%BUILD%\dist\AcikVideoIndirici.exe" (
+  echo [HATA] AcikVideoIndirici.exe üretilmedi.
   goto :fail
 )
 
@@ -86,7 +97,7 @@ if not defined ISCC (
   exit /b 1
 )
 echo [4/5] Inno Setup derleniyor...
-"%ISCC%" "%~dp0AcikVideoIndirici.iss"
+"%ISCC%" /DDistDir="%BUILD%\dist" "%~dp0AcikVideoIndirici.iss"
 if errorlevel 1 goto :fail
 
 REM ---------- 5) Extension klasörünü setup yanına kopyala ----------
@@ -99,6 +110,7 @@ echo ==========================================================
 echo   KURULUM PAKETI HAZIR
 echo   Dosya : installer\Output\Acik-Video-Indirici-Kurulum-7.4.1.exe
 echo   Klasör: installer\Output\extension   (setup ile birlikte taşınır)
+echo   Derleme kökü: %BUILD%   (venv/work/dist; gerekirse elle silebilirsiniz)
 echo   SHA-256:
 certutil -hashfile "Output\Acik-Video-Indirici-Kurulum-7.4.1.exe" SHA256
 echo.
