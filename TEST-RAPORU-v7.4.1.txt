@@ -1,37 +1,56 @@
 Açık Video İndirici v7.4.1 doğrulama özeti
 
-SÜRÜM İŞARETLERİ
-[OK] python_app/app.py APP_VERSION = "7.4.1"
-[OK] extension/manifest.json "version": "7.4.1"
-[OK] README.md paket adı Acik-Video-Indirici-Windows11-v7.4.1.zip
-[OK] installer/AcikVideoIndirici.iss MyAppVersion "7.4.1" / Acik-Video-Indirici-Kurulum-7.4.1.exe
+DÜZELTİLEN HATA
+[OK] `.venv\Scripts\python.exe: No module named pip` kök nedeni belirlendi
+[OK] Kurucunun yalnız venv python.exe varlığına güvenmesi kaldırıldı
+[OK] Mevcut venv Python çalışabilirlik kontrolü
+[OK] Ayrı `python -m pip --version` doğrulaması
+[OK] Eksik pip için `ensurepip --upgrade --default-pip` otomatik onarımı
+[OK] Python 3.13 ile `venv --without-pip` oluşturup aynı ensurepip komutuyla gerçek onarım simülasyonu
+[OK] Onarım başarısızsa bozuk `.venv` klasörünü temizleyip bir kez yeniden oluşturma
+[OK] Sonsuz yeniden oluşturma döngüsünü engelleyen `VENV_REPAIRED` koruması
+[OK] Kilitli `.venv` silinemediğinde açıklayıcı hata ve elle silme yolu
+[OK] Python ensurepip bileşeni yoksa Modify/Repair ve resmi Python kurulumu yönlendirmesi
+[OK] `run.bat` içinde bağımlılık importundan önce pip preflight kontrolü
+[OK] install.bat ve run.bat CRLF satır sonları
+[OK] Batch label/goto hedef bütünlüğü
 
 YENİ ÖZELLİK: KURULUM PAKETİ (PyInstaller + Inno Setup)
 [OK] installer/app.spec: onefile, penceresiz, ikonlu; customtkinter/tkinterdnd2/curl_cffi/certifi veri ve dll toplama; yt-dlp + yt_dlp_ejs + websockets + brotli hiddenimport
 [OK] installer/AcikVideoIndirici.iss: TR+EN dilleri, modern sihirbaz, x64, LZMA2; {app}\extension kurulumu; Başlat menüsünde uygulama + eklenti klasörü kısayolu; kurulum sonrası çalıştırma
-[OK] installer/KURULUM-OLUSTUR.bat: venv -> pip -> PyInstaller -> ISCC (yoksa winget ile Inno kurulumu önerisi) -> Output/extension kopyası -> SHA-256 özeti; CRLF
+[OK] installer/KURULUM-OLUSTUR.bat: venv -> pip (ensurepip onarım fallback'i ile) -> PyInstaller -> ISCC (yoksa winget ile Inno kurulumu önerisi) -> Output/extension kopyası -> SHA-256 özeti; CRLF
 [OK] installer/assets: app.ico (16-256 px), wizard-left.bmp, wizard-small.bmp üretildi
 [OK] FFmpeg/Deno pakete EKLENMEDI; uygulama içi FFmpeg Güncelle / YouTube-Deno WinGet düğmeleriyle kurulur (setup küçük kalır)
 [OK] extension/ dağıtım klasöründe setup'ın yanında taşınır (bat adımı + README §4.8)
 
 DONDURULMUŞ SÜRÜM UYUMLULUĞU
-[OK] IS_FROZEN sabiti eklendi; yt-dlp Güncelle dondurulmuş sürümde pip çalıştırmaz, yeni setup önerir
+[OK] IS_FROZEN sabiti; yt-dlp Güncelle dondurulmuş sürümde pip çalıştırmaz, yeni setup önerir
 [OK] find_ffmpeg/find_ffprobe dondurulmuş EXE'de kurulum klasörünü (exe_dir) ayrıca tarar
 [OK] Kaynak (venv) akışı davranışı değişmedi; köprü 17852, cookie bellek içi, DRM yok
 
-KORUNAN REGRESYONLAR (v7.4)
-[OK] Python app.py sözdizimi ve import zinciri (py_compile)
-[OK] Chrome Manifest V3 JSON ve tüm JavaScript dosyaları (node --check)
-[OK] manifestText zinciri, 1M/2MiB sınırları, local M3U8, enable_file_urls
-[OK] 20 iş havuzu ve concurrency_schema=2 migrasyonu; cookieHeader geçmişten temizlenir
-[OK] FFmpeg WinGet güncelleyici dalları; WinError 32 kurtarma; FFprobe altyazı doğrulaması
-[OK] app.spec Python sözdizimi (compile) kontrolü
+KORUNAN v7.4 ÖZELLİKLERİ
+[OK] Format Seçimi işlem satırında yt-dlp, YouTube/Deno ve FFmpeg Güncelle düğmeleri
+[OK] Gyan.FFmpeg için WinGet upgrade ve install fallback
+[OK] Aktif medya işi varken FFmpeg güncellemesini engelleme
+[OK] WinGet Links/Packages yollarından FFmpeg/FFprobe yeniden keşfi
+[OK] FFmpeg sürüm göstergesi ve updater mock regresyonları
 
-PAKET/KAPSAM
-[OK] Yeni dağınık MD dosyası yok; tüm belge tek README.md içinde güncellendi
-[OK] .gitignore eklendi: installer/build, installer/dist, installer/Output, .venv, __pycache__, loglar git'e girmez
-[OK] TEST-RAPORU-v7.4.1.txt bu sürümün tek ek metin özeti (mevcut txt geleneği)
+KORUNAN TEMEL REGRESYONLAR
+[OK] Python app.py sözdizimi ve bağımlılık importları
+[OK] Chrome Manifest V3 JSON ve tüm JavaScript dosyaları
+[OK] Tarayıcı manifestText ile extensionless HLS local M3U8 fallback'i
+[OK] Memory CookieJar ve cookie değerlerini geçmişten çıkarma
+[OK] 20 eşzamanlı video/audio/subtitle/mux havuzu
+[OK] Ayrı child kuyrukları ve otomatik MKV/MP4 coordinator
+[OK] Tek README.md belge düzeni (v7.4.1 düzeltmesi + installer bölümleri birleşik)
+
+PAKET
+[OK] APP_VERSION ve extension manifest sürümü 7.4.1
+[OK] installer/AcikVideoIndirici.iss MyAppVersion 7.4.1 / Acik-Video-Indirici-Kurulum-7.4.1.exe
+[OK] Dağıtım ZIP'inde yalnız tek Markdown dosyası
+[OK] ZIP kayıt adı/yol denetimi
+[OK] ZIP bütünlük testi
 
 SINIR
-[BEKLİYOR] setup.exe ve tek EXE yalnız Windows'ta derlenebilir: installer/KURULUM-OLUSTUR.bat Windows 11'de çalıştırılmalı; PyInstaller çıktısı, ISCC derlemesi, SmartScreen davranışı, kurulum/extension yükleme ve uygulama içi FFmpeg/Deno kurulumu gerçek ortamda doğrulanmalıdır.
-[BEKLİYOR] v7.4 Imagestoo HLS kullanıcı testi (uzantısız master.txt akışları) hâlâ açıktır.
+[BEKLİYOR] Linux/Arena ortamında Windows cmd.exe çalıştırılamaz. Gerçek Python 3.13 + eksik pip sanal ortam onarımı Windows 11 kullanıcı ortamında son kez doğrulanmalıdır.
+[BEKLİYOR] setup.exe ve tek EXE yalnız Windows'ta derlenebilir: installer/KURULUM-OLUSTUR.bat Windows 11'de çalıştırılmalı; PyInstaller çıktısı, ISCC derlemesi, SmartScreen davranışı, kurulum/extension yükleme gerçek ortamda doğrulanmalıdır.

@@ -12,6 +12,8 @@ if not exist "%APP_DIR%requirements.txt" goto files_missing
 
 set "VENV_PY=%APP_DIR%.venv\Scripts\python.exe"
 if not exist "%VENV_PY%" goto install_needed
+"%VENV_PY%" -m pip --version >nul 2>&1
+if errorlevel 1 goto install_needed
 "%VENV_PY%" -c "import tkinter, customtkinter, yt_dlp, yt_dlp_ejs, curl_cffi, tkinterdnd2" >nul 2>&1
 if errorlevel 1 goto install_needed
 goto launch

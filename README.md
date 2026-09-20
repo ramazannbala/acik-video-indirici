@@ -9,7 +9,11 @@ Açık Video İndirici, Windows 11 için yerel çalışan iki parçalı bir medy
 1. **Chrome/Edge Manifest V3 eklentisi**, sayfadaki gerçekten oynayan `<video>` öğesini bulur, sağ üstüne **İndir** düğmesi ekler ve ilgili medya/sayfa bilgisini yerel uygulamaya yollar.
 2. **Python masaüstü uygulaması**, `customtkinter`, `yt-dlp`, FFmpeg ve FFprobe ile analiz, kalite seçimi, kuyruk, duraklatma/devam, ayrı ses-altyazı indirme ve MP4/MKV birleştirme işlerini yönetir.
 
-Güncel kaynak ve paket sürümü **7.4.1**'dir. v7.4.1 ile **PyInstaller + Inno Setup** tabanlı Windows kurulum paketi (setup.exe) desteği eklenmiştir: `app.py` tek EXE'ye dondurulur, Inno Setup onu profesyonel bir kurulum programı olarak paketler; kullanıcıda Python gerekmez ve dağıtım klasöründe `extension/` klasörü setup'ın yanında taşınır. FFmpeg ve Deno bilinçli olarak pakete konmaz; uygulama içi **FFmpeg Güncelle** ve **YouTube / Deno** düğmeleriyle WinGet üzerinden kurulur, böylece setup küçük kalır. v7.4 ile Format Seçimi sayfasındaki bakım araçlarına eklenen **FFmpeg Güncelle** düğmesi Windows Package Manager üzerinden `Gyan.FFmpeg` paketini yükseltir; FFmpeg yoksa kurar, FFprobe'yu birlikte günceller ve yeni sürümü uygulamada yeniden algılar.
+Güncel kaynak ve paket sürümü **7.4.1**'dir. v7.4 ile Format Seçimi sayfasındaki bakım araçlarına **FFmpeg Güncelle** düğmesi eklenmiştir. Düğme Windows Package Manager üzerinden `Gyan.FFmpeg` paketini yükseltir; FFmpeg yoksa kurar, FFprobe'yu birlikte günceller ve yeni sürümü uygulamada yeniden algılar.
+
+**v7.4.1 kurulum düzeltmesi:** `.venv\Scripts\python.exe` bulunduğu halde `pip` modülü eksikse kurucu artık ortamı hazır kabul etmez. Önce `ensurepip` ile onarır; onarım başarısızsa bozuk `.venv` klasörünü temizleyip yeniden oluşturur ve pip'i tekrar doğrular. Python kurulumunda `ensurepip` gerçekten yoksa genel `No module named pip` yerine uygulanabilir Türkçe onarım adımları gösterilir.
+
+**v7.4.1 kurulum paketi (setup.exe):** Aynı sürümle **PyInstaller + Inno Setup** tabanlı Windows kurulum paketi desteği eklenmiştir: `app.py` tek EXE'ye dondurulur, Inno Setup onu profesyonel bir kurulum programı olarak paketler; kullanıcıda Python gerekmez ve dağıtım klasöründe `extension/` klasörü setup'ın yanında taşınır. FFmpeg ve Deno bilinçli olarak pakete konmaz; uygulama içi **FFmpeg Güncelle** ve **YouTube / Deno** düğmeleriyle WinGet üzerinden kurulur, böylece setup küçük kalır.
 
 Sürüm işaretleri şuralarda birlikte tutulur:
 
@@ -94,6 +98,16 @@ yt-dlp[default,curl-cffi]
 5. Sonraki açılışlarda yine aynı dosya veya `python_app/run.bat` kullanılabilir.
 
 Kurulum hataları `python_app/kurulum-log.txt`, uygulama açılış hataları `python_app/uygulama-hata.log` dosyasına yazılır. Ek tanı için `python_app/TANI.bat` çalıştırılabilir; `tani-sonucu.txt` oluşur.
+
+v7.4.1 kurucusu yarım kalmış sanal ortamları otomatik denetler:
+
+- `.venv` Python'u açılmıyorsa ortamı yeniden oluşturur.
+- `python.exe -m pip --version` başarısızsa `python.exe -m ensurepip --upgrade --default-pip` çalıştırır.
+- pip hâlâ yoksa `.venv` klasörünü silip temiz ortam oluşturur.
+- Bozuk klasör kilitli olduğu için silinemezse bunu açıkça bildirir.
+- Python kurulumundaki `ensurepip` bileşeni de eksikse Python **Modify/Repair** yönergesini gösterir.
+
+Eski bir pakette `No module named pip` hatasını hemen gidermek için uygulamayı kapatıp yalnız `python_app\.venv` klasörünü silin ve `KUR_VE_BASLAT.bat` dosyasını tekrar çalıştırın. Proje kaynaklarını veya indirilmiş videoları silmeyin.
 
 ### 4.2 Python kurulumu
 
@@ -596,6 +610,27 @@ Chrome/Edge/Brave cookie SQLite dosyası kilitliyse uygulama tarayıcı-cookie s
 
 ## 16. Sorun giderme özeti
 
+### `.venv\Scripts\python.exe: No module named pip`
+
+Bu hata Python 3.13'ün desteklenmemesi anlamına gelmez. `.venv\Scripts\python.exe` oluşmuş, ancak o sanal ortamın içine pip yerleşmemiş veya önceki kurulum yarım kalmıştır. Eski kurucu yalnız `python.exe` dosyasının varlığına baktığı için bu eksik ortamı yanlışlıkla hazır kabul ediyordu.
+
+Çözüm sırası:
+
+1. v7.4.1 paketini normal klasöre tamamen çıkarın ve `KUR_VE_BASLAT.bat` çalıştırın; otomatik onarım uygulanır.
+2. Eski klasörde devam edecekseniz uygulamayı kapatın, yalnız `python_app\.venv` klasörünü silin ve ana klasördeki `KUR_VE_BASLAT.bat` dosyasını yeniden çalıştırın.
+3. Hata hâlâ sürerse Python yükleyicisinde **Modify/Repair** açıp `pip` ve `venv` bileşenlerini onarın.
+
+Elle onarım gerekirse:
+
+```bat
+cd /d "C:\uygulama-yolu\python_app"
+rmdir /s /q .venv
+py -3 -m venv .venv
+.venv\Scripts\python.exe -m ensurepip --upgrade --default-pip
+.venv\Scripts\python.exe -m pip install --upgrade pip
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
 ### FFmpeg bulunamadı
 
 ```powershell
@@ -707,7 +742,7 @@ Altyazıyı oynatıcıdan etkinleştirin. `<track>`, VTT/SRT/ASS/TTML, uzantıs�
 | v7.2 | Daha büyük format tablosu, Python refetch ile extensionless/text HLS, memory CookieJar |
 | v7.3 | Tarayıcıdan `manifestText` aktarımı; CDN'ye ikinci istek olmadan local M3U8 hazırlama |
 | v7.4 | Format Seçimi sayfasında WinGet tabanlı FFmpeg/FFprobe güncelleme-kurma düğmesi, aktif iş güvenlik kontrolü, WinGet yolu yeniden keşfi ve sürüm göstergesi |
-| v7.4.1 | PyInstaller + Inno Setup ile tek EXE ve setup.exe kurulum paketi; dağıtım klasöründe extension/; FFmpeg/Deno pakete konmaz (uygulama içi WinGet düğmeleri); dondurulmuş sürümde yt-dlp düğmesi bilgilendirme modu; EXE yanında FFmpeg/FFprobe keşfi; TR/EN kurulum sihirbazı ve ikon/wizard görselleri |
+| v7.4.1 | Eksik pip içeren yarım `.venv` ortamını `ensurepip` ile onarma, gerekirse temiz yeniden oluşturma ve açıklayıcı Python Repair yönlendirmesi; PyInstaller + Inno Setup ile tek EXE ve setup.exe kurulum paketi (dağıtım klasöründe `extension/`, FFmpeg/Deno paketsiz, TR/EN sihirbaz, ikon/wizard görselleri); dondurulmuş sürümde yt-dlp düğmesi bilgilendirme modu ve EXE yanında FFmpeg/FFprobe keşfi |
 
 ## 18. Geliştirme sırasında korunacak mimari kurallar
 
@@ -734,8 +769,9 @@ Yeni bir değişiklik yapılırken aşağıdakiler regresyona uğratılmamalıd�
 19. Kullanıcıya “her site kesin desteklenir” sözü verilmemeli.
 20. Arayüz değişikliği ana büyük indirme listesini küçültmemeli; harici format ve takip pencereleri küçültülebilir kalmalı.
 21. FFmpeg güncelleyici yalnız kullanıcı onayıyla ve aktif medya işi yokken çalışmalı; `Gyan.FFmpeg` WinGet yükseltme/kurma fallback'i, hata mesajları ve yeniden yol/sürüm algılama korunmalı.
-22. Setup paketi FFmpeg, Deno veya Python içermemeli; bunlar uygulama içi bakım düğmeleriyle (WinGet) kurulmalı. `extension/` klasörü hem `{app}\extension` altına kurulmalı hem dağıtım klasöründe setup'ın yanında taşınmalı. `APP_VERSION`, extension manifest ve `.iss` `MyAppVersion` birlikte artırılmalı.
-23. Dondurulmuş (setup) sürümde `yt-dlp Güncelle` pip çalıştırmamalı, kullanıcıya yeni kurulum paketini önermeli; `IS_FROZEN` koruması ve dondurulmuş EXE'de kurulum klasörünü tarayan FFmpeg/FFprobe keşfi korunmalı.
+22. Windows kurucusu yalnız `.venv\Scripts\python.exe` varlığına güvenmemeli; pip'i ayrıca doğrulamalı, `ensurepip` onarımı ve tek seferlik temiz `.venv` yeniden oluşturma fallback'ini korumalı.
+23. Setup paketi FFmpeg, Deno veya Python içermemeli; bunlar uygulama içi bakım düğmeleriyle (WinGet) kurulmalı. `extension/` klasörü hem `{app}\extension` altına kurulmalı hem dağıtım klasöründe setup'ın yanında taşınmalı. `APP_VERSION`, extension manifest ve `.iss` `MyAppVersion` birlikte artırılmalı.
+24. Dondurulmuş (setup) sürümde `yt-dlp Güncelle` pip çalıştırmamalı, kullanıcıya yeni kurulum paketini önermeli; `IS_FROZEN` koruması ve dondurulmuş EXE'de kurulum klasörünü tarayan FFmpeg/FFprobe keşfi korunmalı.
 
 ## 19. Geliştirici doğrulama ve paketleme
 
@@ -769,6 +805,10 @@ grep -n '"version"' extension/manifest.json
 
 - Uygulama açılıyor ve bridge 17852'yi dinliyor.
 - Extension yükleniyor; manifest ve JavaScript syntax hatasız.
+- `install.bat` ve `run.bat` CRLF satır sonlarını koruyor; bütün `goto` hedefleri tanımlı.
+- Python 3.13 ile `venv --without-pip` ortamı oluşturulup kurucunun kullandığı `ensurepip --upgrade --default-pip` komutuyla pip'in gerçekten geri geldiği doğrulanıyor.
+- Eksik pip senaryosunda kurucu önce `ensurepip`, sonra en fazla bir temiz `.venv` yeniden oluşturma yoluna gidiyor; sonsuz döngü oluşturmuyor.
+- `run.bat`, bağımlılık kontrolünden önce `python -m pip --version` ile yarım ortamı kurucuya yönlendiriyor.
 - Format Seçimi satırında yt-dlp, Deno ve FFmpeg bakım düğmeleri yan yana görünüyor.
 - FFmpeg updater mock testlerinde ilk kurulum, normal yükseltme, yönetilmeyen kopyadan install fallback'i, zaten güncel ve hata yolları doğru event üretiyor.
 - Windows gerçek testinde aktif iş varken FFmpeg güncellemesi engelleniyor; boşta WinGet işlemi ve sürüm/yol yenilemesi çalışıyor.
@@ -789,7 +829,7 @@ grep -n '"version"' extension/manifest.json
 
 ### 19.4 Test sınırı
 
-Linux sandbox'ta ekran/Xvfb yoksa tam Windows `customtkinter` görsel smoke test'i yapılamaz. WinGet de Linux'ta gerçek paket yükseltmesiyle çalıştırılamaz; updater dalları mock `CompletedProcess` sonuçlarıyla regresyon testinden geçirilir. Syntax, yardımcı fonksiyon ve paket testleri geçse bile Windows'ta gerçek GUI, WinGet, Chrome/Edge eklentisi, FFmpeg ve örnek medya ile son kullanıcı testi yapılmalıdır.
+Linux sandbox'ta ekran/Xvfb yoksa tam Windows `customtkinter` görsel smoke test'i yapılamaz. Windows CMD olmadığı için `.bat` akışı gerçek `cmd.exe` altında çalıştırılamaz; CRLF, label/goto grafiği ve komut sırası statik olarak doğrulanır. WinGet de Linux'ta gerçek paket yükseltmesiyle çalıştırılamaz; updater dalları mock `CompletedProcess` sonuçlarıyla regresyon testinden geçirilir. Syntax, yardımcı fonksiyon ve paket testleri geçse bile Windows'ta gerçek kurulum, GUI, WinGet, Chrome/Edge eklentisi, FFmpeg ve örnek medya ile son kullanıcı testi yapılmalıdır.
 
 ### 19.5 ZIP paketleme kuralları
 

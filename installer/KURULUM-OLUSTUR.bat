@@ -29,8 +29,28 @@ if not exist ".venv\Scripts\python.exe" (
   %PYCMD% -m venv .venv
   if errorlevel 1 goto :fail
 ) else (
-  echo [2/5] Sanal ortam mevcut, bağımlılıklar kontrol ediliyor...
+  echo [2/5] Sanal ortam mevcut; pip dogrulaniyor...
 )
+".venv\Scripts\python.exe" -m pip --version >nul 2>&1
+if not errorlevel 1 goto :pip_ready
+echo       pip eksik; ensurepip ile onariliyor...
+".venv\Scripts\python.exe" -m ensurepip --upgrade --default-pip >nul 2>&1
+".venv\Scripts\python.exe" -m pip --version >nul 2>&1
+if not errorlevel 1 goto :pip_ready
+echo       Onarim basarisiz; .venv bir kez temiz yeniden olusturuluyor...
+rmdir /s /q ".venv" >nul 2>&1
+if exist ".venv" (
+  echo [HATA] Bozuk .venv klasoru silinemedi. Kullanan terminalleri kapatip elle silin.
+  goto :fail
+)
+%PYCMD% -m venv .venv
+if errorlevel 1 goto :fail
+".venv\Scripts\python.exe" -m pip --version >nul 2>&1
+if not errorlevel 1 goto :pip_ready
+echo [HATA] Sanal ortamda pip olusturulamadi. Python yukleyicisinde Modify/Repair
+echo        secip pip ve venv bilesenlerini onarin, sonra yeniden deneyin.
+goto :fail
+:pip_ready
 ".venv\Scripts\python.exe" -m pip install --upgrade pip >nul
 ".venv\Scripts\python.exe" -m pip install -r "..\python_app\requirements.txt" pyinstaller
 if errorlevel 1 goto :fail
