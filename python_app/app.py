@@ -33,7 +33,7 @@ from yt_dlp.utils import DownloadError
 
 
 APP_NAME = "Açık Video İndirici"
-APP_VERSION = "7.4.0"
+APP_VERSION = "7.4.1"
 BRIDGE_HOST = "127.0.0.1"
 BRIDGE_PORT = 17852
 MAX_BRIDGE_BODY = 2 * 1024 * 1024

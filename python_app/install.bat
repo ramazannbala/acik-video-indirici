@@ -54,20 +54,42 @@ echo       Kullanilacak komut: %PYTHON_CMD%
 call %PYTHON_CMD% --version
 call %PYTHON_CMD% --version >>"%LOG%" 2>&1
 
-echo [2/5] Sanal ortam kontrol ediliyor...
-if exist "%APP_DIR%.venv\Scripts\python.exe" goto venv_ready
+echo [2/5] Sanal ortam ve pip kontrol ediliyor...
+set "VENV_REPAIRED=0"
+set "VENV_PY=%APP_DIR%.venv\Scripts\python.exe"
+if not exist "%VENV_PY%" goto recreate_venv
+"%VENV_PY%" -c "import sys; print(sys.version)" >>"%LOG%" 2>&1
+if errorlevel 1 goto recreate_venv
+goto verify_venv_pip
+
+:recreate_venv
+set "VENV_REPAIRED=1"
 if exist "%APP_DIR%.venv" (
-  echo       Eksik eski ortam temizleniyor...
+  echo       Eksik veya bozuk sanal ortam temizleniyor...
+  >>"%LOG%" echo Eksik veya bozuk sanal ortam temizleniyor.
   rmdir /s /q "%APP_DIR%.venv" >>"%LOG%" 2>&1
 )
+if exist "%APP_DIR%.venv" goto venv_cleanup_error
 echo       .venv olusturuluyor. Bu islem biraz surebilir...
 call %PYTHON_CMD% -m venv "%APP_DIR%.venv" >>"%LOG%" 2>&1
 if errorlevel 1 goto install_error
-
-:venv_ready
 set "VENV_PY=%APP_DIR%.venv\Scripts\python.exe"
 if not exist "%VENV_PY%" goto install_error
 
+:verify_venv_pip
+"%VENV_PY%" -m pip --version >>"%LOG%" 2>&1
+if not errorlevel 1 goto pip_ready
+echo       pip eksik; Python ensurepip ile onariliyor...
+>>"%LOG%" echo pip eksik; ensurepip onarimi baslatiliyor.
+"%VENV_PY%" -m ensurepip --upgrade --default-pip >>"%LOG%" 2>&1
+"%VENV_PY%" -m pip --version >>"%LOG%" 2>&1
+if not errorlevel 1 goto pip_ready
+if "%VENV_REPAIRED%"=="1" goto pip_missing
+set "VENV_REPAIRED=1"
+echo       Mevcut .venv onarilamadi; temiz olarak yeniden kuruluyor...
+goto recreate_venv
+
+:pip_ready
 echo [3/5] pip guncelleniyor...
 "%VENV_PY%" -m pip install --upgrade pip >>"%LOG%" 2>&1
 if errorlevel 1 goto install_error
@@ -121,6 +143,26 @@ echo [HATA] app.py veya requirements.txt bulunamadi.
 echo ZIP dosyasinin icinden calistirmayin.
 echo ZIP'e sag tiklayip "Tumunu Ayikla" secin, sonra ayiklanan klasorden acin.
 >>"%LOG%" echo HATA: Kaynak dosyalari bulunamadi. ZIP ayiklanmamis olabilir.
+goto fail
+
+:pip_missing
+echo.
+echo [HATA] Sanal ortamda pip olusturulamadi.
+echo Python kurulumundaki ensurepip/pip bileseni eksik veya bozuk.
+echo.
+echo 1. Python yukleyicisini acip Modify veya Repair secin.
+echo 2. pip ve venv ozelliklerinin kurulu oldugunu dogrulayin.
+echo 3. Gerekirse Python'u https://www.python.org/downloads/windows/ adresinden yeniden kurun.
+echo 4. Sonra KUR_VE_BASLAT.bat dosyasini yeniden calistirin.
+>>"%LOG%" echo HATA: ensurepip sanal ortamda pip olusturamadi.
+goto fail
+
+:venv_cleanup_error
+echo.
+echo [HATA] Bozuk .venv klasoru silinemedi.
+echo Uygulamayi ve bu klasoru kullanan terminalleri kapatin.
+echo Ardindan "%APP_DIR%.venv" klasorunu elle silip yeniden deneyin.
+>>"%LOG%" echo HATA: Bozuk .venv klasoru silinemedi.
 goto fail
 
 :path_error

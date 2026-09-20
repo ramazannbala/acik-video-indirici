@@ -1,0 +1,41 @@
+Açık Video İndirici v7.4.1 doğrulama özeti
+
+DÜZELTİLEN HATA
+[OK] `.venv\Scripts\python.exe: No module named pip` kök nedeni belirlendi
+[OK] Kurucunun yalnız venv python.exe varlığına güvenmesi kaldırıldı
+[OK] Mevcut venv Python çalışabilirlik kontrolü
+[OK] Ayrı `python -m pip --version` doğrulaması
+[OK] Eksik pip için `ensurepip --upgrade --default-pip` otomatik onarımı
+[OK] Python 3.13 ile `venv --without-pip` oluşturup aynı ensurepip komutuyla gerçek onarım simülasyonu
+[OK] Onarım başarısızsa bozuk `.venv` klasörünü temizleyip bir kez yeniden oluşturma
+[OK] Sonsuz yeniden oluşturma döngüsünü engelleyen `VENV_REPAIRED` koruması
+[OK] Kilitli `.venv` silinemediğinde açıklayıcı hata ve elle silme yolu
+[OK] Python ensurepip bileşeni yoksa Modify/Repair ve resmi Python kurulumu yönlendirmesi
+[OK] `run.bat` içinde bağımlılık importundan önce pip preflight kontrolü
+[OK] install.bat ve run.bat CRLF satır sonları
+[OK] Batch label/goto hedef bütünlüğü
+
+KORUNAN v7.4 ÖZELLİKLERİ
+[OK] Format Seçimi işlem satırında yt-dlp, YouTube/Deno ve FFmpeg Güncelle düğmeleri
+[OK] Gyan.FFmpeg için WinGet upgrade ve install fallback
+[OK] Aktif medya işi varken FFmpeg güncellemesini engelleme
+[OK] WinGet Links/Packages yollarından FFmpeg/FFprobe yeniden keşfi
+[OK] FFmpeg sürüm göstergesi ve updater mock regresyonları
+
+KORUNAN TEMEL REGRESYONLAR
+[OK] Python app.py sözdizimi ve bağımlılık importları
+[OK] Chrome Manifest V3 JSON ve tüm JavaScript dosyaları
+[OK] Tarayıcı manifestText ile extensionless HLS local M3U8 fallback'i
+[OK] Memory CookieJar ve cookie değerlerini geçmişten çıkarma
+[OK] 20 eşzamanlı video/audio/subtitle/mux havuzu
+[OK] Ayrı child kuyrukları ve otomatik MKV/MP4 coordinator
+[OK] Tek README.md belge düzeni
+
+PAKET
+[OK] APP_VERSION ve extension manifest sürümü 7.4.1
+[OK] Dağıtım ZIP'inde yalnız tek Markdown dosyası
+[OK] ZIP kayıt adı/yol denetimi
+[OK] ZIP bütünlük testi
+
+SINIR
+[BEKLİYOR] Linux/Arena ortamında Windows cmd.exe çalıştırılamaz. Gerçek Python 3.13 + eksik pip sanal ortam onarımı Windows 11 kullanıcı ortamında son kez doğrulanmalıdır.

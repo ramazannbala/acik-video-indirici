@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Açık Video Yakala",
-  "version": "7.4.0",
+  "version": "7.4.1",
   "description": "Oynayan videonun sağ üstüne İndir düğmesi ekler; MP4/HLS/DASH ve YouTube sayfalarını yerel Açık Video İndirici'ye yollar.",
   "minimum_chrome_version": "111",
   "permissions": [
