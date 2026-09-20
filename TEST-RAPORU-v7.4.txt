@@ -1,0 +1,34 @@
+Açık Video İndirici v7.4.0 doğrulama özeti
+
+YENİ ÖZELLİK
+[OK] Format Seçimi işlem satırında yt-dlp ve YouTube/Deno yanında FFmpeg Güncelle düğmesi
+[OK] Gyan.FFmpeg için WinGet upgrade; eksik/yönetilmeyen kurulumda install fallback
+[OK] Aktif indirme veya mux işi varken FFmpeg güncellemesini engelleme
+[OK] FFmpeg güncellemesini arka plan thread'inde çalıştırma
+[OK] WinGet bulunamadı, 15 dakika timeout ve komut hatası için Türkçe açıklama
+[OK] WinGet Links/Packages yollarından yeni ffmpeg.exe yeniden keşfi
+[OK] Güncelleme sonrası FFmpeg sürümünü algılama ve üst bileşen bilgisinde gösterme
+[OK] İlk kurulum, yönetilmeyen kopya fallback'i, zaten güncel ve çift hata dalları için mock worker regresyonları
+
+KORUNAN v7.3 REGRESYONLARI
+[OK] Python app.py sözdizimi ve bağımlılık importları
+[OK] Chrome Manifest V3 JSON ve tüm JavaScript dosyaları
+[OK] Page hook yalnız #EXTM3U/XML magic gövdelerini manifestText olarak aktarma
+[OK] manifestText 1 MB ve local bridge 2 MB sınırları
+[OK] Browser manifestText ile ağ refetch yapmadan local M3U8 üretme
+[OK] Relative variant/segment/key/map URI mutlaklaştırma
+[OK] Tarayıcı gövdesi yoksa curl_cffi fallback
+[OK] enable_file_urls local yt-dlp analizi ve prepared URL worker aktarımı
+[OK] CDN cookies memory CookieJar ve deprecated Cookie header kaldırma
+[OK] Unified mux list, full-height kategori paneli ve subtitle mux doğrulaması
+[OK] 20 eşzamanlı video/audio/subtitle/mux havuzu ve otomatik MKV/MP4 coordinator
+[OK] Tek README.md belge düzeni
+
+PAKET
+[OK] APP_VERSION ve extension manifest sürümü 7.4.0
+[OK] Dağıtım ZIP'inde yalnız tek Markdown dosyası
+[OK] ZIP kayıt adı/yol denetimi
+[OK] ZIP bütünlük testi
+
+SINIR
+[BEKLİYOR] Linux/Arena ortamında gerçek Windows WinGet ve customtkinter görsel testi yapılamaz. Düğmenin gerçek Gyan.FFmpeg yükseltmesi Windows 11 kullanıcı ortamında doğrulanmalıdır.

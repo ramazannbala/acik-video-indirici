@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Açık Video Yakala</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Açık Video Yakala</h1>
+      <p id="pageHost">Etkin sekme inceleniyor…</p>
+    </div>
+    <span id="count" class="count">0</span>
+  </header>
+
+  <section class="app-card">
+    <div class="app-row">
+      <span id="appDot" class="dot offline" aria-hidden="true"></span>
+      <div>
+        <strong>Yerel indirici</strong>
+        <small id="appStatus">Kontrol ediliyor…</small>
+      </div>
+    </div>
+    <button id="sendBest" class="primary wide hidden">Yakalanan akışı uygulamaya gönder</button>
+    <button id="sendPage" class="page-button wide">Yalnızca sayfa adresini gönder</button>
+  </section>
+
+  <nav class="toolbar" aria-label="Liste araçları">
+    <button id="showAll" class="filter active">Tümü</button>
+    <button id="showStreams" class="filter">HLS / DASH</button>
+    <button id="showDirect" class="filter">Dosya</button>
+    <span class="spacer"></span>
+    <button id="refresh" class="icon-button" title="Yenile">↻</button>
+    <button id="clear" class="icon-button danger" title="Listeyi temizle">Temizle</button>
+  </nav>
+
+  <main id="mediaList" aria-live="polite"></main>
+
+  <section id="empty" class="empty hidden">
+    <div class="empty-icon">▶</div>
+    <h2>Henüz medya yakalanmadı</h2>
+    <p>Videoyu sayfada oynatın, birkaç saniye bekleyin ve yenileyin.</p>
+  </section>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+
+  <footer>
+    DRM/Widevine içerikleri çözmez. Yalnızca indirme hakkınız olan içerikleri kullanın.
+  </footer>
+  <script src="popup.js"></script>
+</body>
+</html>
