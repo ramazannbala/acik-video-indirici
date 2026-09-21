@@ -20,8 +20,6 @@ YENİ ÖZELLİK: KURULUM PAKETİ (PyInstaller + Inno Setup)
 [OK] installer/AcikVideoIndirici.iss: TR+EN dilleri, modern sihirbaz, x64, LZMA2; {app}\extension kurulumu; Başlat menüsünde uygulama + eklenti klasörü kısayolu; kurulum sonrası çalıştırma
 [OK] installer/KURULUM-OLUSTUR.bat: venv -> pip (ensurepip onarım fallback'i ile) -> PyInstaller -> ISCC (yoksa winget ile Inno kurulumu önerisi) -> Output/extension kopyası -> SHA-256 özeti; CRLF
 [OK] MAX_PATH koruması: venv/work/dist repo dışında %LOCALAPPDATA%\AVI-Build (AVI_BUILD_DIR override); ISCC /DDistDir; .iss #ifndef DistDir varsayılanı; derin/çift kat klasördeki pip [Errno 2] uzun yol hatası giderildi
-[OK] SURUM-ARTIR.bat + tools/bump_version.py: app.py/manifest/.iss sürüm işaretleri tek komutla birlikte artar; CRLF/LF satır sonları korunur (uçtan uca test: 7.5.0'a çıkarıp 7.4.1'e dönüş, md5 özdeş)
-[OK] KURULUM-OLUSTUR.bat sürümü .iss MyAppVersion'dan okur; çıktı adı otomatik Acik-Video-Indirici-Kurulum-<sürüm>.exe olur
 [OK] installer/assets: app.ico (16-256 px), wizard-left.bmp, wizard-small.bmp üretildi
 [OK] FFmpeg/Deno pakete EKLENMEDI; uygulama içi FFmpeg Güncelle / YouTube-Deno WinGet düğmeleriyle kurulur (setup küçük kalır)
 [OK] extension/ dağıtım klasöründe setup'ın yanında taşınır (bat adımı + README §4.8)

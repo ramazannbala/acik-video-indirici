@@ -3,13 +3,8 @@ setlocal EnableExtensions EnableDelayedExpansion
 chcp 65001 >nul
 cd /d "%~dp0"
 
-REM Sürüm tek kaynaktan: .iss içindeki MyAppVersion
-set "APPVER="
-for /f "usebackq tokens=2 delims=^"" %%V in (`findstr /b /c:"#define MyAppVersion" "%~dp0AcikVideoIndirici.iss"`) do set "APPVER=%%V"
-if not defined APPVER set "APPVER=0.0.0"
-
 echo ==========================================================
-echo   Açık Video İndirici v%APPVER% - Setup Üretici
+echo   Açık Video İndirici v7.4.1 - Setup Üretici
 echo   PyInstaller (tek EXE) + Inno Setup (setup.exe)
 echo ==========================================================
 echo.
@@ -113,11 +108,11 @@ xcopy /E /I /Y "%~dp0..\extension" "%~dp0Output\extension" >nul
 echo.
 echo ==========================================================
 echo   KURULUM PAKETI HAZIR
-echo   Dosya : installer\Output\Acik-Video-Indirici-Kurulum-%APPVER%.exe
+echo   Dosya : installer\Output\Acik-Video-Indirici-Kurulum-7.4.1.exe
 echo   Klasör: installer\Output\extension   (setup ile birlikte taşınır)
 echo   Derleme kökü: %BUILD%   (venv/work/dist; gerekirse elle silebilirsiniz)
 echo   SHA-256:
-certutil -hashfile "Output\Acik-Video-Indirici-Kurulum-%APPVER%.exe" SHA256
+certutil -hashfile "Output\Acik-Video-Indirici-Kurulum-7.4.1.exe" SHA256
 echo.
 echo   Not: Imzasız EXE olduğundan Windows SmartScreen uyarısı gösterebilir;
 echo        "Daha fazla bilgi" -^> "Yine de çalıştır" ile devam edilir.

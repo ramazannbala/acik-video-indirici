@@ -60,10 +60,8 @@ aloha-video-downloader/
    ├─ app.spec                                # PyInstaller: app.py -> tek EXE (onefile)
    ├─ AcikVideoIndirici.iss                   # Inno Setup kurulum betiği (TR/EN)
    ├─ KURULUM-OLUSTUR.bat                     # Tek tıkla setup derleme (yalnız Windows)
-   ├─ SURUM-ARTIR.bat                         # app.py + manifest + .iss sürümünü birlikte artırır
    ├─ assets/                                 # app.ico, wizard-left.bmp, wizard-small.bmp
    ├─ tools/make_assets.py                    # Görselleri yeniden üretme betiği (Pillow)
-   ├─ tools/bump_version.py                   # Sürüm işaretlerini birlikte günceller
    ├─ .venv/ , build/ , dist/                 # Derleme ara çıktıları (git'e/pakete girmez)
    └─ Output/                                 # setup.exe + extension/ dağıtım klasörü (git'e girmez)
 ```
@@ -853,7 +851,7 @@ Dağıtım ZIP'inde yalnız şunlar bulunmalıdır:
 - `YOUTUBE-DESTEGI-KUR.bat`
 - `python_app/` içindeki kaynak/bat/requirements dosyaları
 - `extension/` içindeki kaynak dosyaları
-- `installer/` içindeki kaynak dosyalar: `app.spec`, `AcikVideoIndirici.iss`, `KURULUM-OLUSTUR.bat`, `SURUM-ARTIR.bat`, `assets/`, `tools/make_assets.py`, `tools/bump_version.py`
+- `installer/` içindeki kaynak dosyalar: `app.spec`, `AcikVideoIndirici.iss`, `KURULUM-OLUSTUR.bat`, `assets/`, `tools/make_assets.py`
 
 Şunlar dahil edilmemelidir:
 
@@ -896,25 +894,6 @@ Derleme sonrası kontrol listesi:
 - Kurulum sonrası `{app}\AcikVideoIndirici.exe` açılır, köprü 17852'yi dinler.
 - `{app}\extension` Chrome/Edge'de yüklenir; manifest sürümü uygulama sürümüyle aynıdır.
 - `ffmpeg -version` gerekmeden önce uygulama **FFmpeg Güncelle** ile kurabilir.
-
-### 19.7 Yeni değişikliklerle setup üretme
-
-Uygulamaya yeni kod/dosya ekledikten sonra yeni setup üretmek için tam akış:
-
-1. **Kodu güncelleyin.** `python_app/app.py` içindeki her değişiklik ve `app.py`'nin import ettiği yeni Python modülleri PyInstaller analiziyle otomatik EXE'ye girer. Yeni bir pip paketi gerekiyorsa `python_app/requirements.txt`'e ekleyin; `KURULUM-OLUSTUR.bat` onu venv'e kurar. Python olmayan varlıklar (görsel, JSON, Tcl dosyası vb.) ekliyorsanız `app.spec` içindeki `datas`/`binaries` listesine ekleyin. `extension/` klasörüne eklenen her dosya hem kurulumla `{app}\extension` altına hem `Output\extension` kopyasına otomatik gider.
-2. **Sürümü artırın (önerilir, kural 1/22/23):**
-   ```bat
-   installer\SURUM-ARTIR.bat 7.5.0
-   ```
-   Bu, `APP_VERSION`, manifest `version` ve `.iss` `MyAppVersion` değerlerini birlikte günceller; `KURULUM-OLUSTUR.bat` sürümü `.iss`'ten okuyup çıktı adını (`Acik-Video-Indirici-Kurulum-7.5.0.exe`) otomatik belirler. Tek belge kuralı gereği README'deki sürüm satırlarını da güncelleyin.
-3. **Setup'ı derleyin:**
-   ```bat
-   installer\KURULUM-OLUSTUR.bat
-   ```
-   Betik her çalıştırmada GÜNCEL kaynakları yeniden dondurur; önbellekli venv (`%LOCALAPPDATA%\AVI-Build`) sayesinde ikinci ve sonraki derlemeler çok daha hızlıdır. Sonuç: `installer\Output\Acik-Video-Indirici-Kurulum-<sürüm>.exe` + `installer\Output\extension\` + SHA-256.
-4. **Dağıtın.** `Output` klasörünü olduğu gibi paylaşın; kullanıcı eski sürümün üzerine kurabilir (aynı `AppId` güncelleme yolu açar), ayarlar/geçmiş `%APPDATA%` altında korunur.
-
-Not: Yalnız `extension/` JavaScript dosyaları değiştiyse bile EXE'yi yeniden derlemeye gerek yoktur; ancak sürüm tutarlılığı için yine tek bat akışı önerilir.
 
 ## 20. Projeyi yeni Arena.ai Agent Mode sohbetine aktarma
 
