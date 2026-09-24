@@ -53,6 +53,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 ; PyInstaller onefile çıktısı (tek EXE, Python gerektirmez)
 Source: "{#DistDir}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+; Güncellenebilir yt-dlp kitaplıkları (EXE'ye gömülü değil; uygulama içi güncelleme pylibs'i yeniler)
+Source: "{#DistDir}\pylibs\*"; DestDir: "{app}\pylibs"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; Tarayıcı eklentisi, kurulum klasöründe klasör olarak taşınır
 Source: "..\extension\*"; DestDir: "{app}\extension"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\README.md"; DestDir: "{app}"; Flags: ignoreversion

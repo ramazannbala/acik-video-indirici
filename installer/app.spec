@@ -38,13 +38,11 @@ binaries += collect_dynamic_libs("curl_cffi")
 # CA sertifikaları (requests / curl_cffi).
 datas += collect_data_files("certifi")
 
-hiddenimports = [
-    # yt-dlp'nin dondurulmuş derlemelerde özellikle istediği uyumluluk modülleri
-    "yt_dlp.compat._legacy",
-    "yt_dlp.compat._deprecated",
-    "yt_dlp.utils._legacy",
-    "yt_dlp.utils._deprecated",
-]
+# yt-dlp BİLİNÇLİ OLARAK DONDURULMAZ: EXE yanındaki pylibs/ klasöründen
+# yüklenir ve uygulama içi "yt-dlp Güncelle" düğmesi PyPI wheel'leriyle
+# yerinde günceller (README kural 24). curl_cffi dondurulur; pylibs'teki
+# yt-dlp onu çalışma anında frozen importer üzerinden kullanır.
+hiddenimports = []
 
 
 def _safe_collect(module_name):
@@ -54,10 +52,6 @@ def _safe_collect(module_name):
         return []
 
 
-hiddenimports += collect_submodules("yt_dlp")
-hiddenimports += _safe_collect("yt_dlp_ejs")
-hiddenimports += _safe_collect("websockets")
-hiddenimports += _safe_collect("brotli")
 hiddenimports += _safe_collect("curl_cffi")
 hiddenimports += _safe_collect("tkinterdnd2")
 
@@ -70,7 +64,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=["yt_dlp", "yt_dlp_ejs", "websockets", "brotli"],
     noarchive=False,
 )
 pyz = PYZ(a.pure)

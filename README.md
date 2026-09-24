@@ -13,7 +13,7 @@ Güncel kaynak ve paket sürümü **7.4.1**'dir. v7.4 ile Format Seçimi sayfas�
 
 **v7.4.1 kurulum düzeltmesi:** `.venv\Scripts\python.exe` bulunduğu halde `pip` modülü eksikse kurucu artık ortamı hazır kabul etmez. Önce `ensurepip` ile onarır; onarım başarısızsa bozuk `.venv` klasörünü temizleyip yeniden oluşturur ve pip'i tekrar doğrular. Python kurulumunda `ensurepip` gerçekten yoksa genel `No module named pip` yerine uygulanabilir Türkçe onarım adımları gösterilir.
 
-**v7.4.1 kurulum paketi (setup.exe):** Aynı sürümle **PyInstaller + Inno Setup** tabanlı Windows kurulum paketi desteği eklenmiştir: `app.py` tek EXE'ye dondurulur, Inno Setup onu profesyonel bir kurulum programı olarak paketler; kullanıcıda Python gerekmez ve dağıtım klasöründe `extension/` klasörü setup'ın yanında taşınır. FFmpeg ve Deno bilinçli olarak pakete konmaz; uygulama içi **FFmpeg Güncelle** ve **YouTube / Deno** düğmeleriyle WinGet üzerinden kurulur, böylece setup küçük kalır.
+**v7.4.1 kurulum paketi (setup.exe):** Aynı sürümle **PyInstaller + Inno Setup** tabanlı Windows kurulum paketi desteği eklenmiştir: `app.py` tek EXE'ye dondurulur, Inno Setup onu profesyonel bir kurulum programı olarak paketler; kullanıcıda Python gerekmez ve dağıtım klasöründe `extension/` klasörü setup'ın yanında taşınır. FFmpeg ve Deno bilinçli olarak pakete konmaz; uygulama içi **FFmpeg Güncelle** ve **YouTube / Deno** düğmeleriyle WinGet üzerinden kurulur, böylece setup küçük kalır. yt-dlp EXE'ye gömülmez; `{app}\pylibs` klasöründe gelir ve **yt-dlp Güncelle** düğmesi PyPI'den en güncel wheel'i indirip yerinde günceller — yeni setup indirmeden site değişikliklerine ayak uydurur.
 
 Sürüm işaretleri şuralarda birlikte tutulur:
 
@@ -184,7 +184,7 @@ v7.4.1'den itibaren kaynak akışına alternatif olarak tek dosyalık kurulum pa
 2. Kurulum, uygulamayı ve `extension` klasörünü birlikte `{kurulum}\` altına koyar; Başlat menüsüne uygulama ve **Tarayıcı Eklentisi Klasörü** kısayolları eklenir.
 3. Chrome/Edge'de §4.6'daki gibi **Paketlenmemiş öğe yükle** ile kurulum klasöründeki `extension` klasörünü seçin.
 4. Uygulamada Python aranmaz; köprü yine `127.0.0.1:17852` üzerinde açılır.
-5. FFmpeg ve Deno kurulumda gelmez: ilk açılışta Format Seçimi sayfasındaki **FFmpeg Güncelle** ve **YouTube / Deno** düğmelerini kullanın (WinGet ile kurulur). TLS/curl-cffi EXE ile birlikte gelir.
+5. FFmpeg ve Deno kurulumda gelmez: ilk açılışta Format Seçimi sayfasındaki **FFmpeg Güncelle** ve **YouTube / Deno** düğmelerini kullanın (WinGet ile kurulur). yt-dlp EXE'ye gömülü değildir; `pylibs` klasöründen yüklenir ve **yt-dlp Güncelle** ile yeni setup gerekmeden güncellenir (sonrasında yeniden başlatın). TLS/curl-cffi EXE ile birlikte gelir.
 6. Ayarlar ve geçmiş `%APPDATA%\AcikVideoIndirici` altında kalır; program kaldırma bunları silmez.
 
 Dağıtım klasörü (`installer/Output/`) hem `setup.exe` hem `extension/` klasörünü içerir; `extension`'ı ayrıca elle kopyalamaya gerek yoktur.
@@ -265,7 +265,7 @@ Araç çubuğu ile yeni iş, başlat/devam, duraklat, iptal, yeniden adlandır, 
 
 Format Seçimi sayfasının alt işlem satırında yan yana üç bakım düğmesi bulunur:
 
-- **yt-dlp Güncelle** — etkin sanal ortamdaki `yt-dlp[default,curl-cffi]` paketini yükseltir.
+- **yt-dlp Güncelle** — kaynak sürümde etkin sanal ortamdaki `yt-dlp[default,curl-cffi]` paketini yükseltir; setup sürümünde PyPI wheel'lerini indirip EXE yanındaki `pylibs/` klasörünü yerinde günceller.
 - **YouTube / Deno** — Deno bulunmuyorsa WinGet ile kurar.
 - **FFmpeg Güncelle** — `Gyan.FFmpeg` paketini WinGet ile günceller veya eksikse kurar; FFmpeg ve FFprobe birlikte gelir.
 
@@ -781,7 +781,7 @@ Yeni bir değişiklik yapılırken aşağıdakiler regresyona uğratılmamalıd�
 21. FFmpeg güncelleyici yalnız kullanıcı onayıyla ve aktif medya işi yokken çalışmalı; `Gyan.FFmpeg` WinGet yükseltme/kurma fallback'i, hata mesajları ve yeniden yol/sürüm algılama korunmalı.
 22. Windows kurucusu yalnız `.venv\Scripts\python.exe` varlığına güvenmemeli; pip'i ayrıca doğrulamalı, `ensurepip` onarımı ve tek seferlik temiz `.venv` yeniden oluşturma fallback'ini korumalı.
 23. Setup paketi FFmpeg, Deno veya Python içermemeli; bunlar uygulama içi bakım düğmeleriyle (WinGet) kurulmalı. `extension/` klasörü hem `{app}\extension` altına kurulmalı hem dağıtım klasöründe setup'ın yanında taşınmalı. `APP_VERSION`, extension manifest ve `.iss` `MyAppVersion` birlikte artırılmalı.
-24. Dondurulmuş (setup) sürümde `yt-dlp Güncelle` pip çalıştırmamalı, kullanıcıya yeni kurulum paketini önermeli; `IS_FROZEN` koruması ve dondurulmuş EXE'de kurulum klasörünü tarayan FFmpeg/FFprobe keşfi korunmalı.
+24. yt-dlp EXE'ye dondurulmamalı; setup sürümünde `{app}\pylibs` klasöründen yüklenmeli ve **yt-dlp Güncelle** düğmesi PyPI wheel'lerini indirip pylibs'i yerinde güncellemeli (pip kullanılmaz, yeniden başlatma istenir). Kaynak sürümde pip tabanlı güncelleme korunmalı; `IS_FROZEN` ve dondurulmuş EXE'de kurulum klasörünü tarayan FFmpeg/FFprobe keşfi aynen kalmalı.
 
 ## 19. Geliştirici doğrulama ve paketleme
 
@@ -882,7 +882,7 @@ Kurulum paketi yalnız **Windows** üzerinde derlenir (PyInstaller hedef işleti
    - Inno Setup 6'yı arar; yoksa onayla `winget install --id JRSoftware.InnoSetup -e` kurar.
    - `AcikVideoIndirici.iss` derleyerek `installer/Output/Acik-Video-Indirici-Kurulum-7.4.1.exe` üretir.
    - `extension/` klasörünü `installer/Output/extension` altına kopyalar ve SHA-256 yazdırır.
-2. `app.spec` şunları EXE'ye gömer: `customtkinter` temaları, `tkinterdnd2` (tkdnd Tcl paketi + dll), `curl_cffi` yerel kütüphaneleri (TLS impersonation), `certifi` CA paketi, `yt-dlp[default,curl-cffi]` + `yt_dlp_ejs` modülleri. UPX kapalıdır (tk/curl dll'lerini bozabilir).
+2. `app.spec` şunları EXE'ye gömer: `customtkinter` temaları, `tkinterdnd2` (tkdnd Tcl paketi + dll), `curl_cffi` yerel kütüphaneleri (TLS impersonation), `certifi` CA paketi. UPX kapalıdır (tk/curl dll'lerini bozabilir). **yt-dlp ve yt-dlp-ejs bilinçli olarak dondurulmaz** (`excludes`): derleme betiği `pip install --target dist\pylibs yt-dlp yt-dlp-ejs` ile güncel kitaplıkları ayrı klasöre kurar, Inno bunları `{app}\pylibs` altına yerleştirir. Dondurulmuş uygulama başlarken `pylibs`'i `sys.path`'e önden ekler; pylibs'teki yt-dlp, dondurulmuş `curl_cffi`'yi frozen importer üzerinden görür.
 2b. **MAX_PATH koruması:** venv, work ve dist repo dışında kısa bir kökte tutulur (`%LOCALAPPDATA%\AVI-Build`, `AVI_BUILD_DIR` ile değiştirilebilir); ISCC'ye `/DDistDir` ile aktarılır, `.iss` yoksa `dist` varsayılanını kullanır. Böylece derin klasörlerdeki 260 karakter sınırı pip/PyInstaller'ı kırmaz.
 3. **Bilinçli kapsam:** FFmpeg, Deno ve Python pakete konmaz; boyut küçük kalır. Kurulumdan sonra uygulama içi bakım düğmeleri bunları WinGet ile kurar. Dondurulmuş sürümde **yt-dlp Güncelle** pip çalıştırmaz, yeni setup paketini önerir (`IS_FROZEN` koruması).
 4. **Onefile notu:** İlk açılışta geçici klasöre açılım nedeniyle birkaç saniyelik gecikme normaldir; SmartScreen/antivirüs imzasız EXE'de uyarı verebilir. Kod imzası istenirse `codesign_identity` spec'e eklenebilir.
@@ -893,6 +893,8 @@ Derleme sonrası kontrol listesi:
 - `installer/Output/` içinde hem setup.exe hem `extension/` vardır.
 - Kurulum sonrası `{app}\AcikVideoIndirici.exe` açılır, köprü 17852'yi dinler.
 - `{app}\extension` Chrome/Edge'de yüklenir; manifest sürümü uygulama sürümüyle aynıdır.
+- `{app}\pylibs` içinde `yt_dlp` vardır; bileşen satırı güncel `yt-dlp` sürümünü gösterir.
+- Setup sürümünde **yt-dlp Güncelle** PyPI wheel'ini indirir, pylibs'i yerinde değiştirir ve yeniden başlatma ister; pip hatası vermez.
 - `ffmpeg -version` gerekmeden önce uygulama **FFmpeg Güncelle** ile kurabilir.
 
 ## 20. Projeyi yeni Arena.ai Agent Mode sohbetine aktarma

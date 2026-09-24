@@ -74,6 +74,10 @@ if not exist "%BUILD%\dist\AcikVideoIndirici.exe" (
   echo [HATA] AcikVideoIndirici.exe üretilmedi.
   goto :fail
 )
+REM yt-dlp EXE'ye gömülmez; güncellenebilir pylibs/ olarak dist içine kurulur.
+echo       Güncellenebilir yt-dlp pylibs klasörü hazırlanıyor...
+"%BUILD%\venv\Scripts\python.exe" -m pip install --upgrade --target "%BUILD%\dist\pylibs" yt-dlp yt-dlp-ejs
+if errorlevel 1 goto :fail
 
 REM ---------- 4) Inno Setup (ISCC) bul ----------
 set "ISCC="

@@ -16,7 +16,7 @@ DÜZELTİLEN HATA
 [OK] Batch label/goto hedef bütünlüğü
 
 YENİ ÖZELLİK: KURULUM PAKETİ (PyInstaller + Inno Setup)
-[OK] installer/app.spec: onefile, penceresiz, ikonlu; customtkinter/tkinterdnd2/curl_cffi/certifi veri ve dll toplama; yt-dlp + yt_dlp_ejs + websockets + brotli hiddenimport
+[OK] installer/app.spec: onefile, penceresiz, ikonlu; customtkinter/tkinterdnd2/curl_cffi/certifi veri ve dll toplama; yt-dlp/yt_dlp_ejs BİLİNÇLİ excludes (pylibs üzerinden güncellenebilir)
 [OK] installer/AcikVideoIndirici.iss: TR+EN dilleri, modern sihirbaz, x64, LZMA2; {app}\extension kurulumu; Başlat menüsünde uygulama + eklenti klasörü kısayolu; kurulum sonrası çalıştırma
 [OK] installer/KURULUM-OLUSTUR.bat: venv -> pip (ensurepip onarım fallback'i ile) -> PyInstaller -> ISCC (yoksa winget ile Inno kurulumu önerisi) -> Output/extension kopyası -> SHA-256 özeti; CRLF
 [OK] MAX_PATH koruması: venv/work/dist repo dışında %LOCALAPPDATA%\AVI-Build (AVI_BUILD_DIR override); ISCC /DDistDir; .iss #ifndef DistDir varsayılanı; derin/çift kat klasördeki pip [Errno 2] uzun yol hatası giderildi
@@ -25,8 +25,10 @@ YENİ ÖZELLİK: KURULUM PAKETİ (PyInstaller + Inno Setup)
 [OK] extension/ dağıtım klasöründe setup'ın yanında taşınır (bat adımı + README §4.8)
 
 DONDURULMUŞ SÜRÜM UYUMLULUĞU
-[OK] IS_FROZEN sabiti; yt-dlp Güncelle dondurulmuş sürümde pip çalıştırmaz, yeni setup önerir
-[OK] find_ffmpeg/find_ffprobe dondurulmuş EXE'de kurulum klasörünü (exe_dir) ayrıca tarar
+[OK] yt-dlp EXE'ye gömülmez; dondurulmuş uygulama pylibs/ klasörünü sys.path'e önden ekler, pylibs yoksa açıklayıcı hata ile çıkar
+[OK] Setup sürümünde yt-dlp Güncelle: PyPI JSON API -> wheel indir -> pylibs'te yerinde değiştir (eski dist-info temizliği dahil) -> yeniden başlatma isteği; zaten güncelse bilgi verir
+[OK] Kaynak sürümde yt-dlp Güncelle pip akışını korur; pylibs yolu yalnız frozen'da etkindir
+[OK] IS_FROZEN sabiti korunur; find_ffmpeg/find_ffprobe dondurulmuş EXE'de kurulum klasörünü (exe_dir) ayrıca tarar
 [OK] Kaynak (venv) akışı davranışı değişmedi; köprü 17852, cookie bellek içi, DRM yok
 
 KORUNAN v7.4 ÖZELLİKLERİ
