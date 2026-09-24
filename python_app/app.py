@@ -31,10 +31,70 @@ from typing import Any
 
 # Setup (dondurulmuş) sürümde yt-dlp EXE'ye gömülmez; EXE yanındaki pylibs/
 # klasöründen yüklenir ve uygulama içinden güncellenebilir (README kural 24).
+# pylibs eksikse uygulama başlangıçta PyPI'den kendisi indirir (öz onarım).
+
+
+def _pypi_latest_wheel(package: str) -> tuple[str, str]:
+    """PyPI JSON API'den en güncel wheel sürümü ve indirme URL'sini döndürür."""
+    api = f"https://pypi.org/pypi/{package}/json"
+    with urllib.request.urlopen(api, timeout=30) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    version = str(data["info"]["version"])
+    for item in data.get("urls", []):
+        if item.get("packagetype") == "bdist_wheel":
+            return version, str(item["url"])
+    raise RuntimeError(f"{package} için PyPI'de wheel bulunamadı")
+
+
+def _download_url(url: str, target: Path) -> None:
+    request = urllib.request.Request(
+        url, headers={"User-Agent": "AcikVideoIndirici/7.4.1"}
+    )
+    with urllib.request.urlopen(request, timeout=120) as resp, open(target, "wb") as out:
+        shutil.copyfileobj(resp, out)
+
+
+def _install_ytdlp_pylibs(target: Path) -> list[str]:
+    """yt-dlp ve yt-dlp-ejs wheel'lerini indirip hedef klasöre yerinde kurar."""
+    updated: list[str] = []
+    staging = Path(tempfile.mkdtemp(prefix="avi-ytdlp-"))
+    try:
+        for package in ("yt-dlp", "yt-dlp-ejs"):
+            version, url = _pypi_latest_wheel(package)
+            wheel_path = staging / url.rsplit("/", 1)[-1]
+            _download_url(url, wheel_path)
+            extract_dir = staging / f"extract-{package}"
+            with zipfile.ZipFile(wheel_path) as zf:
+                zf.extractall(extract_dir)
+            target.mkdir(parents=True, exist_ok=True)
+            for entry in sorted(extract_dir.iterdir()):
+                if entry.name.endswith(".data"):
+                    # pip metadata/entry-point kabuğu; pylibs'e kopyalanmaz
+                    continue
+                dest = target / entry.name
+                if entry.is_dir() and entry.name.endswith(".dist-info"):
+                    for old in target.glob(f"{entry.name.split('-')[0]}-*.dist-info"):
+                        shutil.rmtree(old, ignore_errors=True)
+                if dest.exists():
+                    if dest.is_dir():
+                        shutil.rmtree(dest, ignore_errors=True)
+                    else:
+                        dest.unlink(missing_ok=True)
+                shutil.move(str(entry), str(dest))
+            updated.append(f"{package} {version}")
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+    return updated
+
+
+def _frozen_pylibs_dir() -> Path:
+    return Path(sys.executable).resolve().parent / "pylibs"
+
+
 if getattr(sys, "frozen", False):
-    _PYLIBS_DIR = Path(sys.executable).resolve().parent / "pylibs"
-    if _PYLIBS_DIR.is_dir():
-        sys.path.insert(0, str(_PYLIBS_DIR))
+    _PYLIBS = _frozen_pylibs_dir()
+    if _PYLIBS.is_dir():
+        sys.path.insert(0, str(_PYLIBS))
 
 import customtkinter as ctk
 
@@ -43,15 +103,23 @@ try:
     from yt_dlp.utils import DownloadError
 except ImportError:
     if getattr(sys, "frozen", False):
-        from tkinter import messagebox as _mb
+        # Öz onarım: pylibs eksikse başlangıçta PyPI'den indir, sonra yeniden dene.
+        try:
+            _install_ytdlp_pylibs(_frozen_pylibs_dir())
+            sys.path.insert(0, str(_frozen_pylibs_dir()))
+            from yt_dlp import YoutubeDL
+            from yt_dlp.utils import DownloadError
+        except Exception:
+            from tkinter import messagebox as _mb
 
-        _mb.showerror(
-            "Açık Video İndirici",
-            "yt-dlp kitaplığı bulunamadı: kurulum klasöründeki pylibs eksik veya bozuk. "
-            "Kurulumu yeniden çalıştırın veya pylibs klasörünü geri yükleyin.",
-        )
-        raise SystemExit(1)
-    raise
+            _mb.showerror(
+                "Açık Video İndirici",
+                "yt-dlp kitaplığı bulunamadı ve otomatik indirme başarısız oldu. "
+                "İnternet bağlantısını kontrol edin veya kurulumu yeniden çalıştırın.",
+            )
+            raise SystemExit(1)
+    else:
+        raise
 
 
 APP_NAME = "Açık Video İndirici"
@@ -5234,32 +5302,10 @@ class VideoDownloaderApp(ctk.CTk):
         self._append_log("Güncelleme başlatıldı.")
         threading.Thread(target=self._update_worker, daemon=True).start()
 
-    @staticmethod
-    def _pypi_latest_wheel(package: str) -> tuple[str, str]:
-        """PyPI JSON API'den en güncel wheel sürümünü ve indirme URL'sini döndürür."""
-        api = f"https://pypi.org/pypi/{package}/json"
-        with urllib.request.urlopen(api, timeout=30) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-        version = str(data["info"]["version"])
-        for item in data.get("urls", []):
-            if item.get("packagetype") == "bdist_wheel":
-                return version, str(item["url"])
-        raise RuntimeError(f"{package} için PyPI'de wheel bulunamadı")
-
-    @staticmethod
-    def _download_to(url: str, target: Path) -> None:
-        request = urllib.request.Request(
-            url, headers={"User-Agent": f"AcikVideoIndirici/{APP_VERSION}"}
-        )
-        with urllib.request.urlopen(request, timeout=120) as resp, open(target, "wb") as out:
-            shutil.copyfileobj(resp, out)
-
     def _frozen_ytdlp_worker(self) -> None:
-        """Setup sürümü: yt-dlp ve yt-dlp-ejs wheel'lerini PyPI'den indirip
-        EXE yanındaki pylibs/ klasörünü yerinde günceller (pip kullanılmaz)."""
+        """Setup sürümü: PyPI'den en güncel wheel'leri indirip pylibs'i yerinde günceller."""
         try:
-            pylibs = Path(sys.executable).resolve().parent / "pylibs"
-            pylibs.mkdir(parents=True, exist_ok=True)
+            pylibs = _frozen_pylibs_dir()
             current = ""
             try:
                 import yt_dlp
@@ -5267,38 +5313,11 @@ class VideoDownloaderApp(ctk.CTk):
                 current = getattr(getattr(yt_dlp, "version", None), "__version__", "")
             except Exception:
                 current = ""
-            latest_version, wheel_url = self._pypi_latest_wheel("yt-dlp")
+            latest_version, _ = _pypi_latest_wheel("yt-dlp")
             if current and latest_version == current:
                 self.event_queue.put(("update_done", f"yt-dlp zaten güncel ({current})."))
                 return
-            staging = Path(tempfile.mkdtemp(prefix="avi-ytdlp-"))
-            try:
-                updated: list[str] = []
-                for package in ("yt-dlp", "yt-dlp-ejs"):
-                    version, url = self._pypi_latest_wheel(package)
-                    wheel_path = staging / url.rsplit("/", 1)[-1]
-                    self._download_to(url, wheel_path)
-                    extract_dir = staging / f"extract-{package}"
-                    with zipfile.ZipFile(wheel_path) as zf:
-                        zf.extractall(extract_dir)
-                    for entry in sorted(extract_dir.iterdir()):
-                        if entry.name.endswith(".data"):
-                            # pip metadata/entry-point kabuğu; pylibs'e kopyalanmaz
-                            continue
-                        target = pylibs / entry.name
-                        if entry.is_dir() and entry.name.endswith(".dist-info"):
-                            # Eski sürümün dist-info kalıntılarını temizle
-                            for old in pylibs.glob(f"{entry.name.split('-')[0]}-*.dist-info"):
-                                shutil.rmtree(old, ignore_errors=True)
-                        if target.exists():
-                            if target.is_dir():
-                                shutil.rmtree(target, ignore_errors=True)
-                            else:
-                                target.unlink(missing_ok=True)
-                        shutil.move(str(entry), str(target))
-                    updated.append(f"{package} {version}")
-            finally:
-                shutil.rmtree(staging, ignore_errors=True)
+            updated = _install_ytdlp_pylibs(pylibs)
             self.event_queue.put(
                 (
                     "update_done",

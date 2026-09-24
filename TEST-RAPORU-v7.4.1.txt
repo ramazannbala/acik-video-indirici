@@ -25,7 +25,7 @@ YENİ ÖZELLİK: KURULUM PAKETİ (PyInstaller + Inno Setup)
 [OK] extension/ dağıtım klasöründe setup'ın yanında taşınır (bat adımı + README §4.8)
 
 DONDURULMUŞ SÜRÜM UYUMLULUĞU
-[OK] yt-dlp EXE'ye gömülmez; dondurulmuş uygulama pylibs/ klasörünü sys.path'e önden ekler, pylibs yoksa açıklayıcı hata ile çıkar
+[OK] yt-dlp EXE'ye gömülmez; dondurulmuş uygulama pylibs/ klasörünü sys.path'e önden ekler; pylibs eksikse başlangıçta öz onarım PyPI'den wheel indirir ve yeniden dener, ağ yoksa açıklayıcı hata ile çıkar
 [OK] Setup sürümünde yt-dlp Güncelle: PyPI JSON API -> wheel indir -> pylibs'te yerinde değiştir (eski dist-info temizliği dahil) -> yeniden başlatma isteği; zaten güncelse bilgi verir
 [OK] Kaynak sürümde yt-dlp Güncelle pip akışını korur; pylibs yolu yalnız frozen'da etkindir
 [OK] IS_FROZEN sabiti korunur; find_ffmpeg/find_ffprobe dondurulmuş EXE'de kurulum klasörünü (exe_dir) ayrıca tarar
